@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ssh -i ~/.ssh/github_actions_deploy root@165.22.188.102 \"docker ps; echo '---'; ss -tlnp | grep ':80'\")",
+      "Bash(ssh -i ~/.ssh/github_actions_deploy root@165.22.188.102 ' *)",
+      "Bash(ssh -i ~/.ssh/github_actions_deploy root@165.22.188.102 \"cat ~/.ssh/authorized_keys\")",
+      "Bash(ssh -i ~/.ssh/id_ed25519 root@165.22.188.102 \"echo '$\\(cat ~/.ssh/github_actions_deploy.pub\\)' >> ~/.ssh/authorized_keys && echo 'Added' && cat ~/.ssh/authorized_keys | grep github-actions\")",
+      "Bash(ssh -i ~/.ssh/github_actions_deploy -o IdentitiesOnly=yes root@165.22.188.102 \"echo 'key auth confirmed'\")",
+      "Bash(ssh -i ~/.ssh/github_actions_deploy -o IdentitiesOnly=yes root@165.22.188.102 \"docker ps && echo '---' && curl -s -o /dev/null -w '%{http_code}' http://localhost\")"
+    ]
+  }
+}

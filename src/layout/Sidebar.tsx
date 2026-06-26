@@ -1,32 +1,14 @@
 import React, { useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import {
-  LayoutDashboard,
-  Users,
-  ScanLine,
-  FlaskConical,
-  Brain,
-  Zap,
-  Shield,
-  HeartHandshake,
-  FileText,
-  Microscope,
-  ClipboardList,
-  Settings,
-  ChevronLeft,
-  ChevronRight,
+  LayoutDashboard, Users, ScanLine, FlaskConical, Brain,
+  Zap, Shield, HeartHandshake, FileText, Microscope,
+  ClipboardList, Settings, ChevronLeft, ChevronRight,
 } from 'lucide-react';
+import { useTheme } from '../lib/ThemeContext';
 
-interface NavItem {
-  label: string;
-  icon: React.ElementType;
-  to: string;
-}
-
-interface NavGroup {
-  group: string;
-  items: NavItem[];
-}
+interface NavItem { label: string; icon: React.ElementType; to: string }
+interface NavGroup { group: string; items: NavItem[] }
 
 const NAV_GROUPS: NavGroup[] = [
   {
@@ -65,27 +47,35 @@ const NAV_GROUPS: NavGroup[] = [
 
 const Sidebar: React.FC = () => {
   const [collapsed, setCollapsed] = useState(false);
+  const { colors } = useTheme();
 
   return (
     <aside
-      className="relative flex flex-col h-full bg-[#0B1220] border-r border-[#1E2A3D] shrink-0 transition-[width] duration-200 ease-in-out"
-      style={{ width: collapsed ? '64px' : '240px' }}
+      className="relative flex flex-col h-full shrink-0 transition-[width] duration-200 ease-in-out"
+      style={{
+        width: collapsed ? '64px' : '240px',
+        backgroundColor: colors.bgBase,
+        borderRight: `1px solid ${colors.border}`,
+      }}
     >
-      {/* Logo area */}
-      <div className="h-16 flex items-center justify-between px-4 border-b border-[#1E2A3D] shrink-0">
+      {/* Logo */}
+      <div
+        className="h-16 flex items-center justify-between px-4 shrink-0"
+        style={{ borderBottom: `1px solid ${colors.border}` }}
+      >
         {!collapsed && (
           <div className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded-md bg-[#3B82F6]/15 flex items-center justify-center">
-              <Shield className="w-4 h-4 text-[#3B82F6]" strokeWidth={2} />
+            <div className="w-7 h-7 rounded-md flex items-center justify-center" style={{ backgroundColor: '#3B82F620' }}>
+              <Shield className="w-4 h-4" style={{ color: '#3B82F6' }} strokeWidth={2} />
             </div>
-            <span className="text-[#E8EEF7] font-semibold text-sm tracking-wide">
+            <span className="font-semibold text-sm tracking-wide" style={{ color: colors.textPrimary }}>
               Scorpius
             </span>
           </div>
         )}
         {collapsed && (
-          <div className="w-7 h-7 rounded-md bg-[#3B82F6]/15 flex items-center justify-center mx-auto">
-            <Shield className="w-4 h-4 text-[#3B82F6]" strokeWidth={2} />
+          <div className="w-7 h-7 rounded-md flex items-center justify-center mx-auto" style={{ backgroundColor: '#3B82F620' }}>
+            <Shield className="w-4 h-4" style={{ color: '#3B82F6' }} strokeWidth={2} />
           </div>
         )}
       </div>
@@ -95,7 +85,7 @@ const Sidebar: React.FC = () => {
         {NAV_GROUPS.map((group) => (
           <div key={group.group} className="mb-1">
             {!collapsed && (
-              <p className="text-[#5E6E85] text-[10px] font-semibold uppercase tracking-widest px-3 pt-3 pb-1.5">
+              <p className="text-[10px] font-semibold uppercase tracking-widest px-3 pt-3 pb-1.5" style={{ color: colors.textMuted }}>
                 {group.group}
               </p>
             )}
@@ -107,21 +97,39 @@ const Sidebar: React.FC = () => {
                   key={item.to}
                   to={item.to}
                   end={item.to === '/'}
-                  className={({ isActive }) =>
-                    [
-                      'flex items-center gap-3 py-2 px-3 rounded-lg text-sm transition-colors',
-                      isActive
-                        ? 'bg-[#1a2844] text-[#3B82F6] border-l-2 border-[#3B82F6]'
-                        : 'text-[#93A1B5] hover:bg-[#1E2A3D] hover:text-[#E8EEF7] border-l-2 border-transparent',
-                      collapsed ? 'justify-center px-0' : '',
-                    ].join(' ')
-                  }
                   title={collapsed ? item.label : undefined}
+                  style={({ isActive }) => ({
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: collapsed ? 0 : 12,
+                    justifyContent: collapsed ? 'center' : undefined,
+                    padding: collapsed ? '8px 0' : '8px 12px',
+                    borderRadius: 8,
+                    fontSize: 14,
+                    textDecoration: 'none',
+                    transition: 'background 0.15s, color 0.15s',
+                    marginBottom: 2,
+                    borderLeft: isActive ? `2px solid #3B82F6` : `2px solid transparent`,
+                    backgroundColor: isActive ? '#3B82F615' : 'transparent',
+                    color: isActive ? '#3B82F6' : colors.textSecondary,
+                  })}
+                  onMouseEnter={e => {
+                    const el = e.currentTarget as HTMLElement;
+                    if (!el.style.color.includes('3B82F6')) {
+                      el.style.backgroundColor = colors.border;
+                      el.style.color = colors.textPrimary;
+                    }
+                  }}
+                  onMouseLeave={e => {
+                    const el = e.currentTarget as HTMLElement;
+                    if (!el.style.borderLeft.includes('3B82F6')) {
+                      el.style.backgroundColor = 'transparent';
+                      el.style.color = colors.textSecondary;
+                    }
+                  }}
                 >
                   <Icon className="w-4 h-4 shrink-0" strokeWidth={1.75} />
-                  {!collapsed && (
-                    <span className="truncate">{item.label}</span>
-                  )}
+                  {!collapsed && <span className="truncate">{item.label}</span>}
                 </NavLink>
               );
             })}
@@ -130,46 +138,41 @@ const Sidebar: React.FC = () => {
       </nav>
 
       {/* Footer */}
-      <div className="border-t border-[#1E2A3D] px-3 py-3 shrink-0">
+      <div className="px-3 py-3 shrink-0" style={{ borderTop: `1px solid ${colors.border}` }}>
         {!collapsed ? (
           <div className="space-y-1.5">
             <div className="flex items-center gap-2">
               <span className="w-1.5 h-1.5 rounded-full bg-[#36C28B] shrink-0" />
-              <span className="text-[#93A1B5] text-xs">System Status</span>
-              <span className="ml-auto text-[#36C28B] text-xs font-medium">
-                Operational
-              </span>
+              <span className="text-xs" style={{ color: colors.textSecondary }}>System Status</span>
+              <span className="ml-auto text-xs font-medium text-[#36C28B]">Operational</span>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-[#5E6E85] text-[11px]">Uptime</span>
-              <span className="text-[#93A1B5] text-[11px] tabular-nums ml-auto">
-                99.9%
-              </span>
+              <span className="text-[11px]" style={{ color: colors.textMuted }}>Uptime</span>
+              <span className="text-[11px] tabular-nums ml-auto" style={{ color: colors.textSecondary }}>99.9%</span>
             </div>
-            <div>
-              <span className="inline-block px-1.5 py-0.5 rounded text-[10px] font-semibold bg-[#F4A638]/15 text-[#F4A638] uppercase tracking-wide">
-                Demo
-              </span>
-            </div>
+            <span className="inline-block px-1.5 py-0.5 rounded text-[10px] font-semibold uppercase tracking-wide bg-[#F4A638]/15 text-[#F4A638]">
+              Demo · Synthetic
+            </span>
           </div>
         ) : (
           <div className="flex justify-center">
-            <span className="w-2 h-2 rounded-full bg-[#36C28B]" title="System Operational" />
+            <span className="w-2 h-2 rounded-full bg-[#36C28B]" title="Operational" />
           </div>
         )}
       </div>
 
       {/* Collapse toggle */}
       <button
-        onClick={() => setCollapsed((c) => !c)}
-        className="absolute -right-3 top-20 w-6 h-6 rounded-full bg-[#121C2E] border border-[#1E2A3D] flex items-center justify-center text-[#5E6E85] hover:text-[#E8EEF7] hover:bg-[#1E2A3D] transition-colors z-10"
+        onClick={() => setCollapsed(c => !c)}
+        className="absolute -right-3 top-20 w-6 h-6 rounded-full flex items-center justify-center z-10 transition-colors"
+        style={{
+          backgroundColor: colors.bgSurface,
+          border: `1px solid ${colors.border}`,
+          color: colors.textMuted,
+        }}
         aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
       >
-        {collapsed ? (
-          <ChevronRight className="w-3 h-3" />
-        ) : (
-          <ChevronLeft className="w-3 h-3" />
-        )}
+        {collapsed ? <ChevronRight className="w-3 h-3" /> : <ChevronLeft className="w-3 h-3" />}
       </button>
     </aside>
   );
