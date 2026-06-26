@@ -1,0 +1,10 @@
+version: "3.8"
+
+services:
+  health:
+    build: .
+    image: scorpius-health:latest
+    container_name: scorpius-health
+    ports:
+      - "80:80"
+    restart: unless-stopped

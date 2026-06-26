@@ -1,0 +1,77 @@
+name: Build & Deploy
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-test:
+    name: Build and Test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Upload dist artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
+          retention-days: 1
+
+  deploy:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    needs: build-and-test
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Build Docker image
+        run: docker build -t scorpius-health:latest .
+
+      - name: Save and compress Docker image
+        run: docker save scorpius-health:latest | gzip > scorpius-health.tar.gz
+
+      - name: Copy image to server
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: 165.22.188.102
+          username: root
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          source: scorpius-health.tar.gz
+          target: /tmp/
+
+      - name: Deploy on server
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: 165.22.188.102
+          username: root
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            docker load < /tmp/scorpius-health.tar.gz
+            docker stop scorpius-health || true
+            docker rm scorpius-health || true
+            docker run -d \
+              --name scorpius-health \
+              --restart unless-stopped \
+              -p 80:80 \
+              scorpius-health:latest
+            rm -f /tmp/scorpius-health.tar.gz
+            docker image prune -f

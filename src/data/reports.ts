@@ -1,0 +1,58 @@
+import type { Report } from '../lib/types';
+
+export const reports: Report[] = [
+  {
+    id: 'RPT-001',
+    type: 'Encounter Summary',
+    title: 'Encounter Summary — Arjun Mehta (ENC-789102)',
+    date: '06 May 2026, 10:34 AM',
+    status: 'Draft',
+    generatedBy: 'Scorpius AI',
+    size: '148 KB',
+  },
+  {
+    id: 'RPT-002',
+    type: 'Risk Assessment',
+    title: 'Risk Assessment Report — PAT-001 Critical Tier',
+    date: '06 May 2026, 10:30 AM',
+    status: 'Complete',
+    generatedBy: 'Scorpius AI',
+    size: '92 KB',
+  },
+  {
+    id: 'RPT-003',
+    type: 'Imaging Report',
+    title: 'Imaging Analysis Report — CXR PA (IMG-001)',
+    date: '06 May 2026, 10:18 AM',
+    status: 'Complete',
+    generatedBy: 'Scorpius AI',
+    size: '2.4 MB',
+  },
+  {
+    id: 'RPT-004',
+    type: 'Intervention Audit',
+    title: 'Autonomous Intervention Audit — 06 May 2026',
+    date: '06 May 2026, 10:35 AM',
+    status: 'Complete',
+    generatedBy: 'Scorpius AI',
+    size: '64 KB',
+  },
+  {
+    id: 'RPT-005',
+    type: 'Prevention Impact',
+    title: 'Prevention Opportunity Impact Summary — PAT-001',
+    date: '06 May 2026, 10:32 AM',
+    status: 'Complete',
+    generatedBy: 'Scorpius AI',
+    size: '55 KB',
+  },
+  {
+    id: 'RPT-006',
+    type: 'Lab Panel Summary',
+    title: 'Lab Panel Summary — Full Workup Results',
+    date: '06 May 2026, 10:00 AM',
+    status: 'Complete',
+    generatedBy: 'Scorpius AI',
+    size: '38 KB',
+  },
+];
