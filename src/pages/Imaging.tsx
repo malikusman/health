@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Eye, Layers, ZoomIn, ZoomOut, RotateCcw, ScanLine } from 'lucide-react';
 import PageContainer from '../layout/PageContainer';
 import { Card, StatusPill, Badge, DataTable } from '../components';
+import ChestXray from '../components/ChestXray';
 import { imagingStudies } from '../data/imaging';
 import type { ImagingStudy } from '../lib/types';
 
@@ -104,98 +105,12 @@ export default function Imaging() {
           <Card title="Image Viewer">
             {/* Viewer area */}
             <div
-              className="relative rounded-xl overflow-hidden mb-4"
-              style={{ aspectRatio: '16/9', backgroundColor: '#0a0e18' }}
+              className="relative rounded-xl overflow-hidden mb-4 flex items-center justify-center"
+              style={{ backgroundColor: '#0a0e18' }}
             >
-              {/* Lung field — left */}
-              <div
-                className="absolute"
-                style={{
-                  left: '15%',
-                  top: '15%',
-                  width: '30%',
-                  height: '62%',
-                  borderRadius: '50%',
-                  backgroundColor: '#1a2235',
-                  border: '1px solid rgba(42,58,80,0.5)',
-                }}
-              />
-              {/* Lung field — right */}
-              <div
-                className="absolute"
-                style={{
-                  right: '15%',
-                  top: '15%',
-                  width: '30%',
-                  height: '62%',
-                  borderRadius: '50%',
-                  backgroundColor: '#1a2235',
-                  border: '1px solid rgba(42,58,80,0.5)',
-                }}
-              />
-              {/* Spine / mediastinum structural bar */}
-              <div
-                className="absolute"
-                style={{
-                  left: '47%',
-                  top: '10%',
-                  width: '6%',
-                  height: '78%',
-                  backgroundColor: '#2a3a50',
-                  borderRadius: 3,
-                  opacity: 0.5,
-                }}
-              />
-              {/* Clavicle hints */}
-              <div
-                className="absolute"
-                style={{
-                  left: '18%',
-                  top: '12%',
-                  width: '28%',
-                  height: '3px',
-                  backgroundColor: '#2e4060',
-                  borderRadius: 2,
-                  transform: 'rotate(-6deg)',
-                }}
-              />
-              <div
-                className="absolute"
-                style={{
-                  right: '18%',
-                  top: '12%',
-                  width: '28%',
-                  height: '3px',
-                  backgroundColor: '#2e4060',
-                  borderRadius: 2,
-                  transform: 'rotate(6deg)',
-                }}
-              />
-              {/* Opacity lesion in right upper lobe */}
-              <div
-                className="absolute"
-                style={{
-                  right: '20%',
-                  top: '18%',
-                  width: '12%',
-                  height: '14%',
-                  borderRadius: '40%',
-                  backgroundColor: 'rgba(240,71,106,0.18)',
-                  border: '1px solid rgba(240,71,106,0.3)',
-                }}
-              />
-
-              {/* Heatmap overlay */}
-              {showHeatmap && (
-                <div
-                  className="absolute inset-0"
-                  style={{
-                    background:
-                      'radial-gradient(ellipse 20% 18% at 76% 28%, rgba(240,71,106,0.55) 0%, rgba(240,71,106,0.18) 50%, transparent 100%)',
-                    mixBlendMode: 'screen',
-                  }}
-                />
-              )}
+              <div style={{ width: '100%', maxWidth: '480px' }}>
+                <ChestXray showHeatmap={showHeatmap} />
+              </div>
 
               {/* Top-right badge */}
               <div className="absolute top-3 right-3">

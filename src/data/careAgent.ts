@@ -1,7 +1,7 @@
 import type { AgentActivity, CareTask } from '../lib/types';
 
 // ─── Agent Activity Log ───────────────────────────────────────────────────────
-// Timestamped activity for Arjun Mehta (PAT-001), 06 May 2026
+// Timestamped activity for John Smith (PAT-001), 06 May 2026
 
 export const agentActivities: AgentActivity[] = [
   {

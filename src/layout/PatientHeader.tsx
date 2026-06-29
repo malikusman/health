@@ -21,11 +21,11 @@ const PatientHeader: React.FC = () => {
       </button>
 
       <div className="w-10 h-10 rounded-full bg-[#3B82F6] flex items-center justify-center text-white text-sm font-semibold shrink-0">
-        AM
+        JS
       </div>
 
       <div className="min-w-0">
-        <p className="font-semibold text-sm leading-tight" style={{ color: colors.textPrimary }}>Arjun Mehta</p>
+        <p className="font-semibold text-sm leading-tight" style={{ color: colors.textPrimary }}>John Smith</p>
         <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
           <span className="text-xs tabular-nums" style={{ color: colors.textMuted }}>MRN 10024567</span>
           {sep}

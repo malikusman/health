@@ -4,7 +4,7 @@ export const reports: Report[] = [
   {
     id: 'RPT-001',
     type: 'Encounter Summary',
-    title: 'Encounter Summary — Arjun Mehta (ENC-789102)',
+    title: 'Encounter Summary — John Smith (ENC-789102)',
     date: '06 May 2026, 10:34 AM',
     status: 'Draft',
     generatedBy: 'Scorpius AI',

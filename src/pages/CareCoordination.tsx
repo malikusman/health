@@ -25,7 +25,7 @@ type FilterType = 'all' | 'analysis' | 'alert' | 'order' | 'consult' | 'document
 // ─── Static Data ──────────────────────────────────────────────────────────────
 
 const TEAM_MEMBERS = [
-  { initials: 'EM', name: 'Dr. Elena Martinez', role: 'Pulmonologist',       status: 'active',     color: '#3B82F6' },
+  { initials: 'RS', name: 'Dr. Robert Smith', role: 'Pulmonologist',       status: 'active',     color: '#3B82F6' },
   { initials: 'JO', name: 'Dr. James Osei',     role: 'Infectious Disease',  status: 'active',     color: '#36C28B' },
   { initials: 'SK', name: 'Nurse Sarah Kim',    role: 'Respiratory',         status: 'active',     color: '#6B8AFE' },
   { initials: 'PN', name: 'Dr. Priya Nair',     role: 'Radiology',           status: 'away',       color: '#F4A638' },
@@ -48,7 +48,7 @@ const COMMUNICATIONS = [
   { direction: 'out', sender: 'Care Agent',       recipient: 'Lab System',          message: 'Priority flag set on sputum smear order ENC-789102. AFB collection urgency: STAT.',                                                       timestamp: '10:24 AM' },
   { direction: 'in',  sender: 'Lab System',        recipient: 'Care Agent',          message: 'Acknowledged — STAT order ENC-789102 received. Estimated processing time ~2 hours.',                                                         timestamp: '10:24 AM' },
   { direction: 'out', sender: 'Care Agent',       recipient: 'Pulmonology Dept',     message: 'Urgent referral: Arjun Mehta ENC-789102. TB suspicion 82%. CXR: right upper lobe opacity. Awaiting clinician approval to transmit.',        timestamp: '10:26 AM' },
-  { direction: 'in',  sender: 'Pulmonology Dept', recipient: 'Care Agent',          message: 'Referral received. Dr. Elena Martinez will review within 30 minutes. Consult slot reserved 11:00 AM.',                                       timestamp: '10:27 AM' },
+  { direction: 'in',  sender: 'Pulmonology Dept', recipient: 'Care Agent',          message: 'Referral received. Dr. Robert Smith will review within 30 minutes. Consult slot reserved 11:00 AM.',                                       timestamp: '10:27 AM' },
   { direction: 'out', sender: 'Care Agent',       recipient: 'Infection Control',    message: 'Isolation review triggered for patient PAT-001, Respiratory Ward B. Airborne precaution assessment requested.',                              timestamp: '10:30 AM' },
   { direction: 'in',  sender: 'Infection Control',recipient: 'Care Agent',          message: 'Acknowledged. Physical review scheduled for 11:15 AM. Single-room transfer pre-approved pending confirmation.',                              timestamp: '10:31 AM' },
 ];

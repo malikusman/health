@@ -5,7 +5,7 @@ import type { Patient } from '../lib/types';
 export const patient: Patient = {
   id: 'PAT-001',
   mrn: 10024567,
-  name: 'Arjun Mehta',
+  name: 'John Smith',
   age: 34,
   sex: 'Male',
   primarySuspicion: 'Pulmonary Tuberculosis',

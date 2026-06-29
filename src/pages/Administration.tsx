@@ -45,7 +45,7 @@ function OrgTab() {
           </span>
         }
       />
-      <KeyValueRow label="Primary Contact" value="Dr. Elena Martinez" />
+      <KeyValueRow label="Primary Contact" value="Dr. Robert Smith" />
       <KeyValueRow
         label="Support Email"
         value={
@@ -207,7 +207,7 @@ function ModelsTab() {
 }
 
 const USERS_DATA = [
-  { initials: 'EM', name: 'Dr. Elena Martinez', role: 'Super Admin',   email: 'e.martinez@ucdavis.edu',    access: 'Full',       lastLogin: 'Today, 08:00',   status: 'Active', color: '#3B82F6' },
+  { initials: 'RS', name: 'Dr. Robert Smith', role: 'Super Admin',   email: 'r.smith@ucdavis.edu',    access: 'Full',       lastLogin: 'Today, 08:00',   status: 'Active', color: '#3B82F6' },
   { initials: 'JO', name: 'Dr. James Osei',     role: 'Clinician',    email: 'j.osei@ucdavis.edu',        access: 'Clinician',  lastLogin: 'Today, 09:15',   status: 'Active', color: '#36C28B' },
   { initials: 'SK', name: 'Nurse Sarah Kim',    role: 'Nurse',        email: 's.kim@ucdavis.edu',         access: 'Nursing',    lastLogin: 'Today, 07:45',   status: 'Active', color: '#6B8AFE' },
   { initials: 'PN', name: 'Dr. Priya Nair',     role: 'Radiologist',  email: 'p.nair@ucdavis.edu',        access: 'Radiology',  lastLogin: 'Yesterday',      status: 'Active', color: '#F4A638' },

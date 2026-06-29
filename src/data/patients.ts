@@ -4,7 +4,7 @@ export const patients: Patient[] = [
   {
     id: 'PAT-001',
     mrn: 10024567,
-    name: 'Arjun Mehta',
+    name: 'John Smith',
     age: 34,
     sex: 'Male',
     primarySuspicion: 'Pulmonary Tuberculosis',
@@ -31,7 +31,7 @@ export const patients: Patient[] = [
   {
     id: 'PAT-002',
     mrn: 10031892,
-    name: 'Margaret O\'Sullivan',
+    name: 'John Doe 2',
     age: 67,
     sex: 'Female',
     primarySuspicion: 'Sepsis — Urinary Source',
@@ -57,7 +57,7 @@ export const patients: Patient[] = [
   {
     id: 'PAT-003',
     mrn: 10018734,
-    name: 'David Chen',
+    name: 'John Doe 3',
     age: 58,
     sex: 'Male',
     primarySuspicion: 'Community-Acquired Pneumonia',
@@ -83,7 +83,7 @@ export const patients: Patient[] = [
   {
     id: 'PAT-004',
     mrn: 10042215,
-    name: 'Priya Nair',
+    name: 'John Doe 4',
     age: 45,
     sex: 'Female',
     primarySuspicion: 'Acute Decompensated Heart Failure',
@@ -109,7 +109,7 @@ export const patients: Patient[] = [
   {
     id: 'PAT-005',
     mrn: 10009871,
-    name: 'Robert Fitzgerald',
+    name: 'John Doe 5',
     age: 72,
     sex: 'Male',
     primarySuspicion: 'COPD Exacerbation',
@@ -135,7 +135,7 @@ export const patients: Patient[] = [
   {
     id: 'PAT-006',
     mrn: 10055678,
-    name: 'Amara Osei',
+    name: 'John Doe 6',
     age: 29,
     sex: 'Female',
     primarySuspicion: 'Post-Operative Sepsis Risk',
@@ -160,7 +160,7 @@ export const patients: Patient[] = [
   {
     id: 'PAT-007',
     mrn: 10066321,
-    name: 'James Thornton',
+    name: 'John Doe 7',
     age: 81,
     sex: 'Male',
     primarySuspicion: 'Acute Kidney Injury',
@@ -185,7 +185,7 @@ export const patients: Patient[] = [
   {
     id: 'PAT-008',
     mrn: 10077109,
-    name: 'Fatima Al-Rashidi',
+    name: 'John Doe 8',
     age: 38,
     sex: 'Female',
     primarySuspicion: 'Deep Vein Thrombosis',
@@ -210,7 +210,7 @@ export const patients: Patient[] = [
   {
     id: 'PAT-009',
     mrn: 10088254,
-    name: 'Carlos Rivera',
+    name: 'John Doe 9',
     age: 52,
     sex: 'Male',
     primarySuspicion: 'Ischaemic Stroke Workup',
@@ -236,7 +236,7 @@ export const patients: Patient[] = [
   {
     id: 'PAT-010',
     mrn: 10099013,
-    name: 'Helen Mackenzie',
+    name: 'John Doe 10',
     age: 64,
     sex: 'Female',
     primarySuspicion: 'Type 2 Diabetes — Glycaemic Crisis',
@@ -261,7 +261,7 @@ export const patients: Patient[] = [
   {
     id: 'PAT-011',
     mrn: 10103847,
-    name: 'Nadia Kowalski',
+    name: 'John Doe 11',
     age: 41,
     sex: 'Female',
     primarySuspicion: 'Pulmonary Embolism',
@@ -287,7 +287,7 @@ export const patients: Patient[] = [
   {
     id: 'PAT-012',
     mrn: 10115490,
-    name: 'Samuel Adeyemi',
+    name: 'John Doe 12',
     age: 19,
     sex: 'Male',
     primarySuspicion: 'Asthma Exacerbation',
@@ -312,7 +312,7 @@ export const patients: Patient[] = [
   {
     id: 'PAT-013',
     mrn: 10127654,
-    name: 'Irene Blackwood',
+    name: 'John Doe 13',
     age: 76,
     sex: 'Female',
     primarySuspicion: 'Fractured Neck of Femur',
@@ -336,7 +336,7 @@ export const patients: Patient[] = [
   {
     id: 'PAT-014',
     mrn: 10138922,
-    name: 'Thomas Wakefield',
+    name: 'John Doe 14',
     age: 48,
     sex: 'Male',
     primarySuspicion: 'Alcohol-Related Liver Disease',

@@ -32,6 +32,7 @@ import { Timeline } from '../components/Timeline';
 import { KeyValueRow } from '../components/KeyValueRow';
 import { ConfidenceMeter } from '../components/ConfidenceMeter';
 import { Sparkline } from '../components/Sparkline';
+import ChestXray from '../components/ChestXray';
 
 import { patient, predictions } from '../data/patient';
 import { interventions } from '../data/interventions';
@@ -277,85 +278,11 @@ function ImagingAICard() {
         </div>
       }
     >
-      {/* Chest X-ray simulation */}
-      <div className="relative rounded-lg overflow-hidden" style={{ backgroundColor: '#0a0e16', aspectRatio: '16/7' }}>
-        {/* Film background texture */}
-        <div
-          className="absolute inset-0"
-          style={{
-            background: 'radial-gradient(ellipse at 50% 120%, #131a26 0%, #080c14 100%)',
-          }}
-        />
-
-        {/* Left lung field */}
-        <div
-          className="absolute"
-          style={{
-            left: '22%',
-            top: '12%',
-            width: '26%',
-            height: '72%',
-            backgroundColor: '#1e2a38',
-            borderRadius: '45% 42% 38% 44% / 30% 30% 55% 52%',
-            opacity: 0.7,
-          }}
-        />
-
-        {/* Right lung field */}
-        <div
-          className="absolute"
-          style={{
-            right: '22%',
-            top: '12%',
-            width: '26%',
-            height: '72%',
-            backgroundColor: '#1e2a38',
-            borderRadius: '42% 45% 44% 38% / 30% 30% 52% 55%',
-            opacity: 0.7,
-          }}
-        />
-
-        {/* Right upper lobe opacity (subtle) */}
-        <div
-          className="absolute"
-          style={{
-            right: '24%',
-            top: '13%',
-            width: '14%',
-            height: '28%',
-            backgroundColor: '#2e3a48',
-            borderRadius: '40% 40% 50% 50% / 40% 40% 60% 60%',
-            opacity: 0.6,
-          }}
-        />
-
-        {/* Spine / mediastinum */}
-        <div
-          className="absolute"
-          style={{
-            left: '50%',
-            top: '5%',
-            transform: 'translateX(-50%)',
-            width: '6%',
-            height: '88%',
-            backgroundColor: '#252f3e',
-            borderRadius: '3px',
-            opacity: 0.5,
-          }}
-        />
-
-        {/* Heatmap overlay */}
-        {showHeatmap && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="absolute inset-0"
-            style={{
-              background:
-                'radial-gradient(ellipse at 65% 25%, rgba(240,71,106,0.45) 0%, rgba(244,166,56,0.2) 40%, transparent 70%)',
-            }}
-          />
-        )}
+      {/* Chest X-ray */}
+      <div className="relative rounded-lg overflow-hidden flex items-center justify-center" style={{ backgroundColor: '#0a0e16' }}>
+        <div style={{ width: '100%', maxWidth: '360px' }}>
+          <ChestXray showHeatmap={showHeatmap} />
+        </div>
 
         {/* Corner label */}
         <div

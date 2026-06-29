@@ -95,10 +95,10 @@ const Topbar: React.FC = () => {
           onMouseLeave={e => { (e.currentTarget as HTMLElement).style.backgroundColor = 'transparent'; }}
         >
           <div className="w-7 h-7 rounded-full bg-[#3B82F6] flex items-center justify-center text-white text-xs font-semibold shrink-0">
-            EM
+            RS
           </div>
           <span className="hidden lg:block text-sm font-medium" style={{ color: colors.textPrimary }}>
-            Dr. Elena Martinez
+            Dr. Robert Smith
           </span>
         </button>
 

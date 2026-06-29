@@ -22,7 +22,7 @@ const MODAL_SECTIONS: Record<string, { heading: string; body: string }[]> = {
   'Encounter Summary': [
     {
       heading: 'Clinical Presentation',
-      body: 'Patient Arjun Mehta, a 34-year-old male, presented to Respiratory Ward B on 06 May 2026 with a 3-week history of productive cough, night sweats, and unintentional weight loss of 4 kg. Fever documented at 38.4°C on admission. No known prior TB diagnosis. BCG vaccination status unknown.',
+      body: 'Patient John Smith, a 34-year-old male, presented to Respiratory Ward B on 06 May 2026 with a 3-week history of productive cough, night sweats, and unintentional weight loss of 4 kg. Fever documented at 38.4°C on admission. No known prior TB diagnosis. BCG vaccination status unknown.',
     },
     {
       heading: 'Diagnostic Findings',
@@ -129,7 +129,7 @@ const Reports: React.FC = () => {
     const newReport: Report = {
       id:          `RPT-${String(reportsList.length + 1).padStart(3, '0')}`,
       type:        'Encounter Summary',
-      title:       'Encounter Summary — Arjun Mehta (ENC-789102)',
+      title:       'Encounter Summary — John Smith (ENC-789102)',
       date:        dateStr,
       status:      'Draft',
       generatedBy: 'Scorpius AI',
@@ -268,7 +268,7 @@ const Reports: React.FC = () => {
                   </div>
                 </div>
                 <div className="text-right text-xs" style={{ color: '#5E6E85', fontFamily: 'Inter, sans-serif', lineHeight: 1.8 }}>
-                  <div><strong style={{ color: '#0B1220' }}>Patient:</strong> Arjun Mehta</div>
+                  <div><strong style={{ color: '#0B1220' }}>Patient:</strong> John Smith</div>
                   <div><strong style={{ color: '#0B1220' }}>MRN:</strong> PAT-001</div>
                   <div><strong style={{ color: '#0B1220' }}>Encounter:</strong> ENC-789102</div>
                   <div><strong style={{ color: '#0B1220' }}>Date:</strong> {selectedReport.date}</div>
