@@ -52,7 +52,7 @@ jobs:
       - name: Copy image to server
         uses: appleboy/scp-action@v0.1.7
         with:
-          host: 165.22.188.102
+          host: 137.184.98.83
           username: root
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           source: scorpius-health.tar.gz
@@ -61,7 +61,7 @@ jobs:
       - name: Deploy on server
         uses: appleboy/ssh-action@v1.0.3
         with:
-          host: 165.22.188.102
+          host: 137.184.98.83
           username: root
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |

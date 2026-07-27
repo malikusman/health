@@ -29,7 +29,7 @@ The app will be available at [http://localhost](http://localhost).
 
 Deployments are fully automated via GitHub Actions. Every push to `main` triggers a build, packages a Docker image, and deploys it to the production server.
 
-**Required secret:** `SSH_PRIVATE_KEY` — a private SSH key with access to `root@165.22.188.102`. Add it under **Settings → Secrets and variables → Actions** in the GitHub repository.
+**Required secret:** `SSH_PRIVATE_KEY` — a private SSH key with access to `root@137.184.98.83`. Add it under **Settings → Secrets and variables → Actions** in the GitHub repository.
 
 Production URL: [https://health.dev-scorpiusnetworks.com](https://health.dev-scorpiusnetworks.com)
 
@@ -54,7 +54,7 @@ Production URL: [https://health.dev-scorpiusnetworks.com](https://health.dev-sco
 | Production URL | https://health.dev-scorpiusnetworks.com |
 | Version | v1.0.0 |
 | Stage | Pilot |
-| Server IP | 165.22.188.102 |
+| Server IP | 137.184.98.83 |
 
 ---
 
