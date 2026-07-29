@@ -8,10 +8,27 @@
 
 ```bash
 npm install
+cp .env.example .env   # optional — defaults to the public API host
 npm run dev
 ```
 
 Open [http://localhost:5173](http://localhost:5173) to view the app locally.
+
+### Medical Intelligence API
+
+Patients, Patient Case, Imaging (CT), and Research Mode load live data from the Phase 1 Medical Intelligence API.
+
+| Variable | Description |
+|----------|-------------|
+| `VITE_HEALTH_API_BASE_URL` | API origin (no trailing slash). Default: `https://health-api.dev-scorpiusnetworks.com` |
+
+- Swagger: https://health-api.dev-scorpiusnetworks.com/docs
+- Response catalog: [`docs/API_RESPONSE_CATALOG.md`](docs/API_RESPONSE_CATALOG.md)
+- UI gap analysis: [`docs/API_UI_GAP_ANALYSIS.md`](docs/API_UI_GAP_ANALYSIS.md)
+
+**CORS:** The API must allow the UI origin via `MEDICAL_API_CORS_ORIGINS`. Localhost (`http://localhost:5173`) and production (`https://health.dev-scorpiusnetworks.com`) are expected to be listed. For local same-origin requests, leave `VITE_HEALTH_API_BASE_URL` empty and use the Vite `/api` proxy in [`vite.config.ts`](vite.config.ts).
+
+API-backed pages show research outputs (TB/non-TB probabilities, model metrics). Clinical Dashboard, Labs, Risk Engine, Intervention, Prevention, Care, Reports, Audit, and Administration remain on synthetic mock data.
 
 ---
 

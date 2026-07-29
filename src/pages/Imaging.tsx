@@ -1,262 +1,354 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Eye, Layers, ZoomIn, ZoomOut, RotateCcw, ScanLine } from 'lucide-react';
+import React, { useEffect, useMemo, useState } from 'react';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import {
+  ScanLine,
+  AlertCircle,
+  ChevronLeft,
+  ChevronRight,
+  Users,
+} from 'lucide-react';
 import PageContainer from '../layout/PageContainer';
-import { Card, StatusPill, Badge, DataTable } from '../components';
-import ChestXray from '../components/ChestXray';
-import { imagingStudies } from '../data/imaging';
-import type { ImagingStudy } from '../lib/types';
-
-function classificationColor(c: string): string {
-  if (c === 'SUSPICIOUS') return '#F0476A';
-  if (c === 'INDETERMINATE') return '#F4A638';
-  if (c === 'NORMAL') return '#36C28B';
-  return '#5E6E85';
-}
-
-function confidenceColor(c: string): string {
-  if (c === 'High') return '#36C28B';
-  if (c === 'Medium') return '#F4A638';
-  if (c === 'Low') return '#F0476A';
-  return '#5E6E85';
-}
+import { Card, Badge, EmptyState } from '../components';
+import { getPatient, getStudy, getStudyImages } from '../api/endpoints';
+import { formatProbability, resolveMediaUrl } from '../api/client';
+import { useApiPatient } from '../api/ApiPatientContext';
+import { useAsync } from '../hooks/useAsync';
 
 export default function Imaging() {
   const navigate = useNavigate();
-  const [showHeatmap, setShowHeatmap] = useState(false);
+  const [searchParams] = useSearchParams();
+  const { patientId: ctxPatientId, detail, setDetail } = useApiPatient();
 
-  const primary = imagingStudies[0];
+  const patientId = searchParams.get('patientId') || ctxPatientId || '';
+  const studyIdParam = searchParams.get('studyId') || '';
 
-  const columns = [
-    { key: 'modality', label: 'Modality' },
-    { key: 'view', label: 'View' },
-    { key: 'date', label: 'Date' },
-    {
-      key: 'aiClassification',
-      label: 'AI Classification',
-      render: (row: ImagingStudy) => (
-        <Badge color={classificationColor(row.aiClassification)}>
-          {row.aiClassification}
-        </Badge>
-      ),
-    },
-    {
-      key: 'probability',
-      label: 'Probability',
-      render: (row: ImagingStudy) => (
-        <span style={{ color: '#E8EEF7', fontVariantNumeric: 'tabular-nums' }}>
-          {row.probability !== null ? `${row.probability}%` : '—'}
-        </span>
-      ),
-    },
-    {
-      key: 'confidence',
-      label: 'Confidence',
-      render: (row: ImagingStudy) => (
-        <span style={{ color: confidenceColor(row.confidence) }}>{row.confidence}</span>
-      ),
-    },
-    {
-      key: 'radiologistStatus',
-      label: 'Radiologist Status',
-      render: (row: ImagingStudy) => <StatusPill status={row.radiologistStatus} size="sm" />,
-    },
-    {
-      key: 'actions',
-      label: 'Actions',
-      render: (_row: ImagingStudy) => (
-        <button
-          className="flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold transition-colors"
-          style={{ backgroundColor: '#3B82F622', color: '#3B82F6', border: '1px solid #3B82F644' }}
-          onMouseEnter={(e) => {
-            (e.currentTarget as HTMLButtonElement).style.backgroundColor = '#3B82F633';
-          }}
-          onMouseLeave={(e) => {
-            (e.currentTarget as HTMLButtonElement).style.backgroundColor = '#3B82F622';
-          }}
-          onClick={() => navigate('/')}
-        >
-          <Eye size={12} />
-          View
-        </button>
-      ),
-    },
-  ] as { key: string; label: string; render?: (row: ImagingStudy) => React.ReactNode }[];
+  const [imagePage, setImagePage] = useState(1);
+  const [selectedIndex, setSelectedIndex] = useState(0);
+  const pageSize = 24;
+
+  const patient = useAsync(
+    () => (patientId ? getPatient(patientId) : Promise.reject(new Error('No patient selected'))),
+    [patientId],
+  );
+
+  useEffect(() => {
+    if (patient.data) setDetail(patient.data);
+  }, [patient.data, setDetail]);
+
+  const studyId = studyIdParam || patient.data?.studies[0]?.study_id || detail?.studies[0]?.study_id || '';
+
+  const study = useAsync(
+    () => (studyId ? getStudy(studyId) : Promise.reject(new Error('No study'))),
+    [studyId],
+  );
+
+  const images = useAsync(
+    () => (studyId ? getStudyImages(studyId, imagePage, pageSize) : Promise.reject(new Error('No study'))),
+    [studyId, imagePage],
+  );
+
+  useEffect(() => {
+    setSelectedIndex(0);
+  }, [imagePage, studyId]);
+
+  const items = images.data?.items ?? [];
+  const selected = items[selectedIndex] ?? null;
+  const heatmapAvailable = study.data?.available_predictions?.some((p) => p.heatmap_available) ?? false;
+
+  const prediction = useMemo(() => {
+    const fromPatient = patient.data?.predictions?.[0];
+    return fromPatient ?? null;
+  }, [patient.data]);
+
+  const renderUrl = selected
+    ? resolveMediaUrl(`${selected.render_url}?size=512`)
+    : null;
+  const pagination = images.data?.pagination;
+
+  if (!patientId) {
+    return (
+      <PageContainer>
+        <div className="flex items-center gap-3 mb-6">
+          <ScanLine size={20} color="#3B82F6" />
+          <h2 className="text-[20px] font-semibold" style={{ color: '#E8EEF7' }}>
+            Imaging
+          </h2>
+        </div>
+        <Card>
+          <EmptyState
+            icon={<Users size={24} />}
+            title="Select a patient from Patients"
+            subtitle="Open a research patient case, then choose Open Imaging to load CT slices from the Medical Intelligence API."
+          />
+          <div className="flex justify-center pb-4">
+            <Link
+              to="/patients"
+              className="px-4 py-2 rounded-lg text-sm font-semibold"
+              style={{ backgroundColor: '#3B82F6', color: '#fff' }}
+            >
+              Go to Patients
+            </Link>
+          </div>
+        </Card>
+      </PageContainer>
+    );
+  }
 
   return (
     <PageContainer>
-      {/* Header */}
-      <div className="flex items-center gap-3 mb-6">
-        <ScanLine size={20} color="#3B82F6" />
-        <div>
-          <h2 className="text-[20px] font-semibold leading-tight" style={{ color: '#E8EEF7' }}>
-            Imaging
-          </h2>
-          <p className="text-[13px] mt-0.5" style={{ color: '#5E6E85' }}>
-            AI-powered imaging analysis and radiologist workflow
-          </p>
+      <div className="flex items-center justify-between gap-3 mb-6 flex-wrap">
+        <div className="flex items-center gap-3">
+          <ScanLine size={20} color="#3B82F6" />
+          <div>
+            <h2 className="text-[20px] font-semibold leading-tight" style={{ color: '#E8EEF7' }}>
+              Imaging
+            </h2>
+            <p className="text-[13px] mt-0.5" style={{ color: '#5E6E85' }}>
+              {patient.data?.display_id ?? patientId} · CT from Medical Intelligence API
+            </p>
+          </div>
         </div>
+        <button
+          type="button"
+          className="text-xs font-semibold px-3 py-1.5 rounded-lg"
+          style={{ backgroundColor: '#1E2A3D', color: '#3B82F6' }}
+          onClick={() => navigate(`/patients/${encodeURIComponent(patientId)}`)}
+        >
+          Back to case
+        </button>
       </div>
 
-      {/* Main grid: viewer + findings panel */}
-      <div className="grid grid-cols-3 gap-6 mb-6">
-        {/* LEFT — Image Viewer col-span-2 */}
-        <div className="col-span-2">
-          <Card title="Image Viewer">
-            {/* Viewer area */}
-            <div
-              className="relative rounded-xl overflow-hidden mb-4 flex items-center justify-center"
-              style={{ backgroundColor: '#0a0e18' }}
-            >
-              <div style={{ width: '100%', maxWidth: '480px' }}>
-                <ChestXray showHeatmap={showHeatmap} />
-              </div>
+      <div
+        className="rounded-xl p-3 mb-4 text-sm"
+        style={{ backgroundColor: '#F4A63810', border: '1px solid #F4A63855', color: '#F4A638' }}
+      >
+        Research imaging viewer — outputs are not clinical diagnoses.
+        {!heatmapAvailable && ' Heatmap overlays are currently unavailable.'}
+      </div>
 
-              {/* Top-right badge */}
-              <div className="absolute top-3 right-3">
-                <Badge color="#F0476A" size="md">SUSPICIOUS · 82%</Badge>
-              </div>
+      {(patient.error || study.error || images.error) && (
+        <Card className="mb-4">
+          <div className="flex items-center gap-2" style={{ color: '#F0476A' }}>
+            <AlertCircle size={16} />
+            <span className="text-sm">{patient.error || study.error || images.error}</span>
+          </div>
+        </Card>
+      )}
 
-              {/* Watermark bottom-left */}
-              <div
-                className="absolute bottom-3 left-3 text-[10px] uppercase tracking-widest"
-                style={{ color: '#2e4060' }}
-              >
-                Scorpius Imaging AI v2.1
-              </div>
-            </div>
-
-            {/* Control bar */}
-            <div className="flex items-center gap-2 flex-wrap">
-              <button
-                onClick={() => setShowHeatmap((v) => !v)}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors"
-                style={
-                  showHeatmap
-                    ? { backgroundColor: '#3B82F622', color: '#3B82F6', border: '1px solid #3B82F644' }
-                    : { backgroundColor: '#1E2A3D', color: '#93A1B5', border: '1px solid #1E2A3D' }
-                }
-              >
-                <Layers size={12} />
-                Heatmap
-              </button>
-              {[
-                { icon: <ZoomIn size={12} />, label: 'Zoom +' },
-                { icon: <ZoomOut size={12} />, label: 'Zoom −' },
-                { icon: <RotateCcw size={12} />, label: 'Reset' },
-                { icon: <Eye size={12} />, label: 'Window / Level' },
-                { icon: <ScanLine size={12} />, label: 'Compare Prior' },
-              ].map(({ icon, label }) => (
-                <button
-                  key={label}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors"
-                  style={{ backgroundColor: '#1E2A3D', color: '#93A1B5' }}
-                  onMouseEnter={(e) => {
-                    (e.currentTarget as HTMLButtonElement).style.backgroundColor = '#243047';
-                    (e.currentTarget as HTMLButtonElement).style.color = '#E8EEF7';
-                  }}
-                  onMouseLeave={(e) => {
-                    (e.currentTarget as HTMLButtonElement).style.backgroundColor = '#1E2A3D';
-                    (e.currentTarget as HTMLButtonElement).style.color = '#93A1B5';
-                  }}
-                  onClick={() => {}}
-                >
-                  {icon}
-                  {label}
-                </button>
-              ))}
-            </div>
-          </Card>
-        </div>
-
-        {/* RIGHT — AI Classification / Findings */}
-        <div className="col-span-1 flex flex-col gap-4">
-          <Card title="AI Classification">
-            {/* Classification badge large */}
-            <div className="mb-4">
-              <Badge color="#F0476A" size="lg">SUSPICIOUS</Badge>
-            </div>
-
-            {/* Probability */}
-            <div className="mb-4">
-              <div className="text-[11px] uppercase tracking-widest font-semibold mb-1" style={{ color: '#5E6E85' }}>
-                Prob. Tuberculosis
-              </div>
-              <div className="text-[36px] font-bold leading-none tabular-nums" style={{ color: '#F0476A', fontVariantNumeric: 'tabular-nums' }}>
-                82%
-              </div>
-            </div>
-
-            {/* Confidence */}
-            <div className="flex items-center justify-between py-2 border-b border-[#1E2A3D]">
-              <span className="text-[13px]" style={{ color: '#5E6E85' }}>Confidence</span>
-              <Badge color="#36C28B" size="sm">High</Badge>
-            </div>
-
-            {/* Model version */}
-            <div className="flex items-center justify-between py-2 border-b border-[#1E2A3D]">
-              <span className="text-[13px]" style={{ color: '#5E6E85' }}>Model</span>
-              <span className="text-[13px] font-medium" style={{ color: '#93A1B5' }}>
-                Scorpius Imaging AI v2.1
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 mb-6">
+        <Card className="xl:col-span-2" title="CT viewer">
+          <div
+            className="flex items-center justify-center rounded-lg mb-4 overflow-hidden"
+            style={{ backgroundColor: '#0B1220', minHeight: 420 }}
+          >
+            {images.loading && (
+              <span className="text-sm" style={{ color: '#5E6E85' }}>
+                Loading slices…
               </span>
-            </div>
+            )}
+            {!images.loading && renderUrl && (
+              <img
+                src={renderUrl}
+                alt={`CT slice ${selected?.index ?? ''}`}
+                className="max-w-full max-h-[520px] object-contain"
+              />
+            )}
+            {!images.loading && !renderUrl && (
+              <span className="text-sm" style={{ color: '#5E6E85' }}>
+                No images in this page.
+              </span>
+            )}
+          </div>
 
-            {/* Radiologist status */}
-            <div className="flex items-center justify-between py-2 border-b border-[#1E2A3D]">
-              <span className="text-[13px]" style={{ color: '#5E6E85' }}>Radiologist</span>
-              <StatusPill status="Pending" size="sm" />
-            </div>
+          {selected && (
+            <p className="text-xs mb-3" style={{ color: '#5E6E85' }}>
+              Slice index {selected.index} · instance {selected.instance_number} · {selected.image_id}
+            </p>
+          )}
 
-            {/* Findings */}
-            <div className="mt-4 mb-4">
-              <div className="text-[11px] uppercase tracking-widest font-semibold mb-3" style={{ color: '#5E6E85' }}>
-                Findings
+          <div className="flex gap-2 overflow-x-auto pb-2">
+            {items.map((img, i) => (
+              <button
+                key={img.image_id}
+                type="button"
+                onClick={() => setSelectedIndex(i)}
+                className="shrink-0 rounded border-2 overflow-hidden"
+                style={{
+                  borderColor: i === selectedIndex ? '#3B82F6' : '#1E2A3D',
+                  width: 72,
+                  height: 72,
+                }}
+              >
+                <img
+                  src={resolveMediaUrl(img.thumbnail_url)}
+                  alt={`thumb ${img.index}`}
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+              </button>
+            ))}
+          </div>
+
+          {pagination && (
+            <div className="flex items-center justify-between mt-4">
+              <span className="text-xs" style={{ color: '#5E6E85' }}>
+                Image page {pagination.page} / {pagination.total_pages} · {pagination.total_items} slices
+              </span>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  disabled={imagePage <= 1 || images.loading}
+                  className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold disabled:opacity-40"
+                  style={{ backgroundColor: '#1E2A3D', color: '#E8EEF7' }}
+                  onClick={() => setImagePage((p) => Math.max(1, p - 1))}
+                >
+                  <ChevronLeft size={14} /> Prev
+                </button>
+                <button
+                  type="button"
+                  disabled={!pagination || imagePage >= pagination.total_pages || images.loading}
+                  className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold disabled:opacity-40"
+                  style={{ backgroundColor: '#1E2A3D', color: '#E8EEF7' }}
+                  onClick={() => setImagePage((p) => p + 1)}
+                >
+                  Next <ChevronRight size={14} />
+                </button>
               </div>
-              <ul className="flex flex-col gap-2">
-                {primary.findings.map((f, i) => (
-                  <li key={i} className="flex gap-2 text-[13px]" style={{ color: '#93A1B5' }}>
-                    <span className="mt-1.5 flex-shrink-0 w-1.5 h-1.5 rounded-full" style={{ backgroundColor: '#3B82F6' }} />
-                    {f}
-                  </li>
-                ))}
-              </ul>
             </div>
+          )}
+        </Card>
 
-            {/* Actions */}
-            <div className="flex flex-col gap-2">
-              <button
-                className="w-full py-2 rounded-lg text-sm font-semibold transition-colors"
-                style={{ backgroundColor: '#3B82F6', color: '#fff' }}
-                onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.backgroundColor = '#2563EB'; }}
-                onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.backgroundColor = '#3B82F6'; }}
-              >
-                Request Radiologist Review
-              </button>
-              <button
-                className="w-full py-2 rounded-lg text-sm font-semibold transition-colors"
-                style={{ backgroundColor: '#1E2A3D', color: '#93A1B5', border: '1px solid #1E2A3D' }}
-                onMouseEnter={(e) => {
-                  (e.currentTarget as HTMLButtonElement).style.backgroundColor = '#243047';
-                  (e.currentTarget as HTMLButtonElement).style.color = '#E8EEF7';
-                }}
-                onMouseLeave={(e) => {
-                  (e.currentTarget as HTMLButtonElement).style.backgroundColor = '#1E2A3D';
-                  (e.currentTarget as HTMLButtonElement).style.color = '#93A1B5';
-                }}
-              >
-                Add to Report
-              </button>
-            </div>
-          </Card>
-        </div>
+        <Card title="AI classification (research)">
+          {study.loading || patient.loading ? (
+            <p className="text-sm" style={{ color: '#5E6E85' }}>
+              Loading…
+            </p>
+          ) : (
+            <dl className="space-y-3 text-sm">
+              <div className="flex justify-between gap-2">
+                <dt style={{ color: '#5E6E85' }}>Study</dt>
+                <dd className="font-mono text-xs text-right" style={{ color: '#93A1B5' }}>
+                  {study.data?.study_id ?? 'unavailable'}
+                </dd>
+              </div>
+              <div className="flex justify-between gap-2">
+                <dt style={{ color: '#5E6E85' }}>Modality</dt>
+                <dd style={{ color: '#E8EEF7' }}>{study.data?.modality ?? 'unavailable'}</dd>
+              </div>
+              <div className="flex justify-between gap-2">
+                <dt style={{ color: '#5E6E85' }}>Description</dt>
+                <dd className="text-right" style={{ color: '#E8EEF7' }}>
+                  {study.data?.description || 'unavailable'}
+                </dd>
+              </div>
+              <div className="flex justify-between gap-2">
+                <dt style={{ color: '#5E6E85' }}>Predicted</dt>
+                <dd>
+                  {prediction ? (
+                    <Badge color={prediction.predicted_class === 'tb' ? '#F0476A' : '#36C28B'}>
+                      {prediction.predicted_class}
+                    </Badge>
+                  ) : (
+                    <span style={{ color: '#5E6E85' }}>unavailable</span>
+                  )}
+                </dd>
+              </div>
+              <div className="flex justify-between gap-2">
+                <dt style={{ color: '#5E6E85' }}>TB probability (research)</dt>
+                <dd className="tabular-nums" style={{ color: '#E8EEF7' }}>
+                  {prediction ? formatProbability(prediction.tb_probability) : 'unavailable'}
+                </dd>
+              </div>
+              <div className="flex justify-between gap-2">
+                <dt style={{ color: '#5E6E85' }}>Ground truth</dt>
+                <dd>
+                  {prediction ? (
+                    <Badge color={prediction.ground_truth === 'tb' ? '#F0476A' : '#36C28B'}>
+                      {prediction.ground_truth}
+                    </Badge>
+                  ) : (
+                    <span style={{ color: '#5E6E85' }}>unavailable</span>
+                  )}
+                </dd>
+              </div>
+              <div className="flex justify-between gap-2">
+                <dt style={{ color: '#5E6E85' }}>Radiologist status</dt>
+                <dd style={{ color: '#5E6E85' }}>N/A (research API)</dd>
+              </div>
+              <div className="flex justify-between gap-2">
+                <dt style={{ color: '#5E6E85' }}>Heatmap</dt>
+                <dd style={{ color: '#5E6E85' }}>
+                  {heatmapAvailable ? 'Available' : 'Unavailable'}
+                </dd>
+              </div>
+            </dl>
+          )}
+        </Card>
       </div>
 
-      {/* Studies Table */}
-      <Card title="Studies" badge={imagingStudies.length}>
-        <DataTable
-          columns={columns}
-          rows={imagingStudies}
-        />
+      <Card title="Studies">
+        {!patient.data?.studies?.length ? (
+          <p className="text-sm" style={{ color: '#5E6E85' }}>
+            {patient.loading ? 'Loading studies…' : 'No studies.'}
+          </p>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr style={{ borderBottom: '1px solid #1E2A3D' }}>
+                  {['Study ID', 'Modality', 'Timepoint', 'Images', 'TB Prob. (research)', ''].map((h) => (
+                    <th
+                      key={h || 'a'}
+                      className="text-left px-2 py-2 text-[11px] uppercase tracking-widest font-semibold"
+                      style={{ color: '#5E6E85' }}
+                    >
+                      {h}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {patient.data.studies.map((s) => (
+                  <tr key={s.study_id} style={{ borderBottom: '1px solid #1E2A3D' }}>
+                    <td className="px-2 py-3 font-mono text-xs" style={{ color: '#93A1B5' }}>
+                      {s.study_id}
+                    </td>
+                    <td className="px-2 py-3" style={{ color: '#E8EEF7' }}>
+                      {s.modality}
+                    </td>
+                    <td className="px-2 py-3" style={{ color: '#93A1B5' }}>
+                      {s.timepoint || 'unavailable'}
+                    </td>
+                    <td className="px-2 py-3" style={{ color: '#93A1B5' }}>
+                      {s.image_count}
+                    </td>
+                    <td className="px-2 py-3 tabular-nums" style={{ color: '#E8EEF7' }}>
+                      {prediction ? formatProbability(prediction.tb_probability) : 'unavailable'}
+                    </td>
+                    <td className="px-2 py-3">
+                      <button
+                        type="button"
+                        className="text-xs font-semibold px-3 py-1 rounded-lg"
+                        style={{
+                          backgroundColor: s.study_id === studyId ? '#3B82F633' : '#1E2A3D',
+                          color: '#3B82F6',
+                        }}
+                        onClick={() => {
+                          setImagePage(1);
+                          navigate(
+                            `/imaging?patientId=${encodeURIComponent(patientId)}&studyId=${encodeURIComponent(s.study_id)}`,
+                          );
+                        }}
+                      >
+                        View
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </Card>
     </PageContainer>
   );

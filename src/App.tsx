@@ -9,6 +9,7 @@ import PipelineTracker from './layout/PipelineTracker';
 
 const Dashboard = React.lazy(() => import('./pages/Dashboard'));
 const Patients = React.lazy(() => import('./pages/Patients'));
+const PatientCase = React.lazy(() => import('./pages/PatientCase'));
 const Imaging = React.lazy(() => import('./pages/Imaging'));
 const Labs = React.lazy(() => import('./pages/Labs'));
 const RiskEngine = React.lazy(() => import('./pages/RiskEngine'));
@@ -20,7 +21,17 @@ const ResearchMode = React.lazy(() => import('./pages/ResearchMode'));
 const AuditLogs = React.lazy(() => import('./pages/AuditLogs'));
 const Administration = React.lazy(() => import('./pages/Administration'));
 
-const PATIENT_CONTEXT_ROUTES = ['/', '/imaging', '/labs', '/risk-engine', '/intervention', '/prevention', '/care', '/reports'];
+/** Clinical mock routes that show John Smith PatientHeader + PipelineTracker.
+ *  API-backed Patients / PatientCase / Imaging / Research intentionally excluded. */
+const PATIENT_CONTEXT_ROUTES = [
+  '/',
+  '/labs',
+  '/risk-engine',
+  '/intervention',
+  '/prevention',
+  '/care',
+  '/reports',
+];
 
 const LoadingFallback: React.FC = () => (
   <div className="flex items-center justify-center h-64">
@@ -38,21 +49,14 @@ const App: React.FC = () => {
 
   return (
     <div className="flex h-screen overflow-hidden bg-[#0B1220]">
-      {/* Left sidebar */}
       <Sidebar />
 
-      {/* Right column */}
       <div className="flex flex-col flex-1 overflow-hidden">
-        {/* Topbar */}
         <Topbar />
 
-        {/* Conditional patient context bar */}
         {showPatientContext && <PatientHeader />}
-
-        {/* Conditional pipeline tracker */}
         {showPatientContext && <PipelineTracker />}
 
-        {/* Scrollable content area */}
         <main
           className="flex-1 overflow-y-auto bg-[#0B1220]"
           style={{
@@ -64,6 +68,7 @@ const App: React.FC = () => {
               <Routes location={location} key={location.pathname}>
                 <Route path="/" element={<Dashboard />} />
                 <Route path="/patients" element={<Patients />} />
+                <Route path="/patients/:patientId" element={<PatientCase />} />
                 <Route path="/imaging" element={<Imaging />} />
                 <Route path="/labs" element={<Labs />} />
                 <Route path="/risk-engine" element={<RiskEngine />} />
@@ -78,7 +83,6 @@ const App: React.FC = () => {
             </AnimatePresence>
           </Suspense>
 
-          {/* Footer */}
           <footer className="px-6 py-4 border-t border-[#1E2A3D] flex items-center gap-4 flex-wrap">
             <span className="text-[#5E6E85] text-xs">
               &copy; 2026 Scorpius Health
