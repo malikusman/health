@@ -26,7 +26,7 @@ Patients, Patient Case, Imaging (CT), and Research Mode load live data from the 
 - Response catalog: [`docs/API_RESPONSE_CATALOG.md`](docs/API_RESPONSE_CATALOG.md)
 - UI gap analysis: [`docs/API_UI_GAP_ANALYSIS.md`](docs/API_UI_GAP_ANALYSIS.md)
 
-**CORS:** The API must allow the UI origin via `MEDICAL_API_CORS_ORIGINS`. Localhost (`http://localhost:5173`) and production (`https://health.dev-scorpiusnetworks.com`) are expected to be listed. For local same-origin requests, leave `VITE_HEALTH_API_BASE_URL` empty and use the Vite `/api` proxy in [`vite.config.ts`](vite.config.ts).
+**CORS / Docker:** The UI hosted at `http://localhost` (port 80) is **not** on the API CORS allow-list (only `http://localhost:5173` and the production UI origin are). Docker/nginx therefore proxies `/api/` to the Medical Intelligence API so the browser uses same-origin requests. Production Docker builds leave `VITE_HEALTH_API_BASE_URL` empty for this reason. For Vite dev on port 5173 you can set the full API URL in `.env` (CORS allows that origin) or leave it empty to use the Vite `/api` proxy.
 
 API-backed pages show research outputs (TB/non-TB probabilities, model metrics). Clinical Dashboard, Labs, Risk Engine, Intervention, Prevention, Care, Reports, Audit, and Administration remain on synthetic mock data.
 

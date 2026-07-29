@@ -7,6 +7,11 @@ COPY package.json package-lock.json* ./
 RUN npm install
 
 COPY . .
+
+# Empty base URL → browser calls same-origin /api/... (proxied by nginx)
+ARG VITE_HEALTH_API_BASE_URL=
+ENV VITE_HEALTH_API_BASE_URL=$VITE_HEALTH_API_BASE_URL
+
 RUN npm run build
 
 # Stage 2: Serve
