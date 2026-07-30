@@ -6,6 +6,7 @@ import Sidebar from './layout/Sidebar';
 import Topbar from './layout/Topbar';
 import PatientHeader from './layout/PatientHeader';
 import PipelineTracker from './layout/PipelineTracker';
+import ApiHealthStatus from './components/ApiHealthStatus';
 
 const Dashboard = React.lazy(() => import('./pages/Dashboard'));
 const Patients = React.lazy(() => import('./pages/Patients'));
@@ -18,11 +19,13 @@ const AutonomousPrevention = React.lazy(() => import('./pages/AutonomousPreventi
 const CareCoordination = React.lazy(() => import('./pages/CareCoordination'));
 const Reports = React.lazy(() => import('./pages/Reports'));
 const ResearchMode = React.lazy(() => import('./pages/ResearchMode'));
+const PredictionDetail = React.lazy(() => import('./pages/PredictionDetail'));
+const DatasetDetail = React.lazy(() => import('./pages/DatasetDetail'));
 const AuditLogs = React.lazy(() => import('./pages/AuditLogs'));
 const Administration = React.lazy(() => import('./pages/Administration'));
 
 /** Clinical mock routes that show John Smith PatientHeader + PipelineTracker.
- *  API-backed Patients / PatientCase / Imaging / Research intentionally excluded. */
+ *  API-backed routes intentionally excluded. */
 const PATIENT_CONTEXT_ROUTES = [
   '/',
   '/labs',
@@ -77,6 +80,8 @@ const App: React.FC = () => {
                 <Route path="/care" element={<CareCoordination />} />
                 <Route path="/reports" element={<Reports />} />
                 <Route path="/research" element={<ResearchMode />} />
+                <Route path="/predictions/:predictionId" element={<PredictionDetail />} />
+                <Route path="/datasets/:datasetId" element={<DatasetDetail />} />
                 <Route path="/audit" element={<AuditLogs />} />
                 <Route path="/administration" element={<Administration />} />
               </Routes>
@@ -96,10 +101,7 @@ const App: React.FC = () => {
               Version <span className="text-[#93A1B5]">v1.0.0</span>
             </span>
             <span className="text-[#1E2A3D] text-xs select-none">|</span>
-            <span className="flex items-center gap-1.5 text-xs text-[#36C28B]">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#36C28B] inline-block" />
-              Secure
-            </span>
+            <ApiHealthStatus />
             <span className="text-[#1E2A3D] text-xs select-none">|</span>
             <span className="text-[#5E6E85] text-xs">HIPAA Ready</span>
           </footer>

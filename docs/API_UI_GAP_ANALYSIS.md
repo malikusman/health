@@ -1,30 +1,41 @@
-# API ↔ UI Gap Analysis (Option 2: Wire Overlaps Only)
+# API ↔ UI Gap Analysis (Option 2 + remaining endpoints)
 
-Branch strategy: `feature/api-integration`. Clinical ops pages stay on mock data.
+Branch: `feature/api-integration`. Clinical ops pages stay on mock data except where noted.
 
-## Wired to API
+## All Phase 1 endpoints — UI wired
 
-| Page | Endpoints | Notes |
-|------|-----------|-------|
-| Patients | `GET /dashboard/summary`, `GET /patients` | Pagination + research filters |
-| Patient Case | `GET /patients/{id}` | Studies + predictions; link to Imaging |
-| Imaging | `GET /patients/{id}`, `GET /studies/{id}`, `GET /studies/{id}/images`, thumbnail/render | Real CT; heatmap disabled |
-| Research Mode | `GET /model-runs/{id}`, `GET /dashboard/summary`, `GET /datasets`, `GET /predictions` | Live metrics; no fake calibration |
+| Endpoint | UI surface |
+|----------|------------|
+| `GET /health` | App footer `ApiHealthStatus` |
+| `GET /dashboard/summary` | Patients stats, Research defaults |
+| `GET /patients` | Patients list |
+| `GET /patients/{id}` | Patient Case, Imaging |
+| `GET /patients/{id}/predictions` | Patient Case prediction history |
+| `GET /studies/{id}` | Imaging |
+| `GET /studies/{id}/images` | Imaging slice strip |
+| `GET /images/{id}/thumbnail` | Imaging (via URL) |
+| `GET /images/{id}/render` | Imaging main viewer |
+| `GET /models` | Research picker, Administration Models tab |
+| `GET /models/{id}` | Research detail, Admin expand |
+| `GET /model-runs` | Research run picker |
+| `GET /model-runs/{id}` | Research metrics / confusion matrix |
+| `GET /predictions` | Research predictions table |
+| `GET /predictions/{id}` | Prediction Detail page |
+| `GET /datasets` | Research pie + links |
+| `GET /datasets/{id}` | Dataset Detail page |
 
-## Remain mock
+## Remain mock (no API)
 
-Dashboard (clinical John Smith), Labs, Risk Engine, Intervention, Prevention, Care Coordination, Reports, Audit, Administration.
+Dashboard (clinical John Smith), Labs, Risk Engine, Intervention, Prevention, Care, Reports, Audit, Admin tabs other than Models.
 
 ## Field rules
 
-- `tb_probability` → display as % labeled **TB probability (research)** — never “clinical confidence”
-- Anonymized `display_id` / `patient_id` only (no name/MRN/ward)
-- Null → “unavailable” (never substitute `0`)
-- `heatmap_available: false` → hide/disable heatmap controls
+- `tb_probability` → % labeled **TB probability (research)**
+- Null → “unavailable”
+- Heatmap controls hidden while `heatmap_available` is false
 
 ## Env / CORS
 
-- Frontend: `VITE_HEALTH_API_BASE_URL=https://health-api.dev-scorpiusnetworks.com`
-- Backend must allow UI origins in `MEDICAL_API_CORS_ORIGINS` (localhost:5173 and https://health.dev-scorpiusnetworks.com already observed as allowed at probe time)
+Docker/nginx proxies `/api/` so `http://localhost` avoids CORS. See README.
 
 See also: [API_RESPONSE_CATALOG.md](./API_RESPONSE_CATALOG.md)

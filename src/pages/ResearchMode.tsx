@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Microscope, AlertTriangle, AlertCircle, ChevronLeft, ChevronRight } from 'lucide-react';
 import {
@@ -15,6 +15,8 @@ import {
   getModel,
   getModelRun,
   listDatasets,
+  listModelRuns,
+  listModels,
   listPredictions,
 } from '../api/endpoints';
 import { formatMetric, formatPercentMetric, formatProbability } from '../api/client';
@@ -22,38 +24,69 @@ import { useAsync } from '../hooks/useAsync';
 
 const PIE_COLORS = ['#F0476A', '#36C28B', '#5E6E85'];
 
+const selectClass =
+  'bg-[#0F1828] border border-[#1E2A3D] rounded-lg px-3 py-2 text-sm outline-none focus:border-[#3B82F6] w-full max-w-md';
+
 export default function ResearchMode() {
   const [predPage, setPredPage] = useState(1);
+  const [selectedModelId, setSelectedModelId] = useState('');
+  const [selectedRunId, setSelectedRunId] = useState('');
   const pageSize = 25;
 
   const summary = useAsync(() => getDashboardSummary(), []);
-  const runId = summary.data?.latest_model_run?.model_run_id;
-  const modelId = summary.data?.latest_model_run?.model_id;
+  const models = useAsync(() => listModels(), []);
+  const runs = useAsync(() => listModelRuns(), []);
+  const datasets = useAsync(() => listDatasets(), []);
+
+  // Default selection from dashboard summary / first list item
+  useEffect(() => {
+    const latestModel = summary.data?.latest_model_run?.model_id;
+    const latestRun = summary.data?.latest_model_run?.model_run_id;
+    if (!selectedModelId) {
+      const fallback = latestModel || models.data?.items[0]?.model_id || '';
+      if (fallback) setSelectedModelId(fallback);
+    }
+    if (!selectedRunId) {
+      const fallback = latestRun || runs.data?.items[0]?.model_run_id || '';
+      if (fallback) setSelectedRunId(fallback);
+    }
+  }, [summary.data, models.data, runs.data, selectedModelId, selectedRunId]);
+
+  const modelId = selectedModelId;
+  const runId = selectedRunId;
 
   const run = useAsync(
-    () => (runId ? getModelRun(runId) : Promise.reject(new Error('No model run'))),
+    () => (runId ? getModelRun(runId) : Promise.reject(new Error('No model run selected'))),
     [runId],
   );
   const model = useAsync(
-    () => (modelId ? getModel(modelId) : Promise.reject(new Error('No model'))),
+    () => (modelId ? getModel(modelId) : Promise.reject(new Error('No model selected'))),
     [modelId],
   );
-  const datasets = useAsync(() => listDatasets(), []);
   const predictions = useAsync(
     () =>
-      listPredictions({
-        page: predPage,
-        page_size: pageSize,
-        model_run_id: runId,
-        partition: 'test',
-        sort_by: 'tb_probability',
-        sort_order: 'desc',
-      }),
+      runId
+        ? listPredictions({
+            page: predPage,
+            page_size: pageSize,
+            model_run_id: runId,
+            partition: 'test',
+            sort_by: 'tb_probability',
+            sort_order: 'desc',
+          })
+        : Promise.reject(new Error('No model run selected')),
     [predPage, runId],
   );
 
+  const runsForModel = useMemo(() => {
+    const items = runs.data?.items ?? [];
+    if (!modelId) return items;
+    return items.filter((r) => r.model_id === modelId);
+  }, [runs.data, modelId]);
+
   const pieData =
     datasets.data?.items.map((d) => ({
+      id: d.dataset_id,
       name: d.primary_class === 'tb' ? 'TB' : d.primary_class === 'non_tb' ? 'Non-TB' : d.name,
       value: d.patient_count,
       color: d.primary_class === 'tb' ? PIE_COLORS[0] : d.primary_class === 'non_tb' ? PIE_COLORS[1] : PIE_COLORS[2],
@@ -92,6 +125,70 @@ export default function ResearchMode() {
           </p>
         </div>
       </div>
+
+      <Card className="mb-6" title="Model & run selection">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <label className="block text-sm">
+            <span className="text-[11px] uppercase tracking-widest font-semibold block mb-1.5" style={{ color: '#5E6E85' }}>
+              Model
+            </span>
+            <select
+              className={selectClass}
+              style={{ color: '#E8EEF7' }}
+              value={selectedModelId}
+              onChange={(e) => {
+                const next = e.target.value;
+                setSelectedModelId(next);
+                setPredPage(1);
+                const firstRun = (runs.data?.items ?? []).find((r) => r.model_id === next);
+                if (firstRun) setSelectedRunId(firstRun.model_run_id);
+              }}
+            >
+              {(models.data?.items ?? []).length === 0 && (
+                <option value="">{models.loading ? 'Loading…' : 'No models'}</option>
+              )}
+              {(models.data?.items ?? []).map((m) => (
+                <option key={m.model_id} value={m.model_id}>
+                  {m.name} ({m.version})
+                </option>
+              ))}
+            </select>
+            {models.error && (
+              <span className="text-xs mt-1 block" style={{ color: '#F0476A' }}>
+                {models.error}
+              </span>
+            )}
+          </label>
+          <label className="block text-sm">
+            <span className="text-[11px] uppercase tracking-widest font-semibold block mb-1.5" style={{ color: '#5E6E85' }}>
+              Model run
+            </span>
+            <select
+              className={selectClass}
+              style={{ color: '#E8EEF7' }}
+              value={selectedRunId}
+              onChange={(e) => {
+                setSelectedRunId(e.target.value);
+                setPredPage(1);
+              }}
+            >
+              {runsForModel.length === 0 && (
+                <option value="">{runs.loading ? 'Loading…' : 'No runs'}</option>
+              )}
+              {runsForModel.map((r) => (
+                <option key={r.model_run_id} value={r.model_run_id}>
+                  {r.model_run_id} · {r.status}
+                </option>
+              ))}
+            </select>
+            {runs.error && (
+              <span className="text-xs mt-1 block" style={{ color: '#F0476A' }}>
+                {runs.error}
+              </span>
+            )}
+          </label>
+        </div>
+      </Card>
 
       {(summary.error || run.error) && (
         <Card className="mb-4">
@@ -169,9 +266,6 @@ export default function ResearchMode() {
               <p className="text-[13px] pt-2" style={{ color: '#5E6E85' }}>
                 {model.data.description}
               </p>
-              <p className="text-xs" style={{ color: '#5E6E85' }}>
-                Previous model versions are not available via this API.
-              </p>
             </dl>
           )}
         </Card>
@@ -234,7 +328,7 @@ export default function ResearchMode() {
                   <PieChart>
                     <Pie data={pieData} dataKey="value" nameKey="name" innerRadius={55} outerRadius={85} paddingAngle={2}>
                       {pieData.map((d) => (
-                        <Cell key={d.name} fill={d.color} />
+                        <Cell key={d.id} fill={d.color} />
                       ))}
                     </Pie>
                     <Tooltip
@@ -246,14 +340,33 @@ export default function ResearchMode() {
               </div>
               <div className="flex flex-wrap gap-x-4 gap-y-1.5 mt-2">
                 {pieData.map((d) => (
-                  <div key={d.name} className="flex items-center gap-1.5">
+                  <Link
+                    key={d.id}
+                    to={`/datasets/${encodeURIComponent(d.id)}`}
+                    className="flex items-center gap-1.5 hover:opacity-80"
+                  >
                     <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: d.color }} />
-                    <span className="text-xs" style={{ color: '#93A1B5' }}>
+                    <span className="text-xs" style={{ color: '#3B82F6' }}>
                       {d.name} <span style={{ color: '#5E6E85' }}>({d.value})</span>
                     </span>
-                  </div>
+                  </Link>
                 ))}
               </div>
+              {(datasets.data?.items ?? []).length > 0 && (
+                <ul className="mt-3 space-y-1">
+                  {datasets.data!.items.map((d) => (
+                    <li key={d.dataset_id}>
+                      <Link
+                        to={`/datasets/${encodeURIComponent(d.dataset_id)}`}
+                        className="text-xs font-mono"
+                        style={{ color: '#3B82F6' }}
+                      >
+                        {d.dataset_id} →
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              )}
             </>
           )}
         </Card>
@@ -309,9 +422,9 @@ export default function ResearchMode() {
           <table className="w-full text-sm">
             <thead>
               <tr style={{ borderBottom: '1px solid #1E2A3D' }}>
-                {['Patient', 'Ground truth', 'Predicted', 'TB Prob. (research)', 'Correct', 'Partition'].map((h) => (
+                {['Patient', 'Ground truth', 'Predicted', 'TB Prob. (research)', 'Correct', 'Partition', ''].map((h) => (
                   <th
-                    key={h}
+                    key={h || 'a'}
                     className="text-left px-4 py-3 text-[11px] uppercase tracking-widest font-semibold"
                     style={{ color: '#5E6E85' }}
                   >
@@ -323,7 +436,7 @@ export default function ResearchMode() {
             <tbody>
               {predictions.loading && (
                 <tr>
-                  <td colSpan={6} className="px-4 py-8 text-center" style={{ color: '#5E6E85' }}>
+                  <td colSpan={7} className="px-4 py-8 text-center" style={{ color: '#5E6E85' }}>
                     Loading predictions…
                   </td>
                 </tr>
@@ -354,6 +467,15 @@ export default function ResearchMode() {
                     </td>
                     <td className="px-4 py-3" style={{ color: '#93A1B5' }}>
                       {p.partition}
+                    </td>
+                    <td className="px-4 py-3">
+                      <Link
+                        to={`/predictions/${encodeURIComponent(p.prediction_id)}`}
+                        className="text-xs font-semibold"
+                        style={{ color: '#3B82F6' }}
+                      >
+                        Detail
+                      </Link>
                     </td>
                   </tr>
                 ))}

@@ -11,6 +11,9 @@ import {
 } from 'lucide-react';
 import PageContainer from '../layout/PageContainer';
 import { Card, StatusPill, Badge, KeyValueRow, SectionTitle } from '../components';
+import { listModels, getModel } from '../api/endpoints';
+import { useAsync } from '../hooks/useAsync';
+import type { ModelDetail } from '../api/types';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -130,79 +133,158 @@ function DataSourcesTab() {
   );
 }
 
-const MODELS_DATA = [
-  { name: 'Scorpius Risk Engine',       version: 'v1.3', type: 'Ensemble',       status: 'Active' },
-  { name: 'Imaging AI',                 version: 'v2.1', type: 'Computer Vision', status: 'Active' },
-  { name: 'Care Coordination Agent',    version: 'v1.0', type: 'LLM Agent',       status: 'Active' },
-  { name: 'Prevention Model',           version: 'v1.1', type: 'Predictive',      status: 'Active' },
-];
-
 function ModelsTab() {
-  const [enabled, setEnabled] = useState<Record<string, boolean>>({
-    'Scorpius Risk Engine':    true,
-    'Imaging AI':              true,
-    'Care Coordination Agent': true,
-    'Prevention Model':        true,
-  });
+  const models = useAsync(() => listModels(), []);
+  const [expandedId, setExpandedId] = useState<string | null>(null);
+  const detail = useAsync(
+    () =>
+      expandedId
+        ? getModel(expandedId)
+        : Promise.resolve(null as unknown as ModelDetail),
+    [expandedId],
+  );
 
   return (
-    <Card title="Deployed Models">
-      <div className="overflow-x-auto">
-        <table className="w-full" style={{ borderCollapse: 'collapse' }}>
-          <thead>
-            <tr style={{ backgroundColor: '#0F1828' }}>
-              {['Model Name', 'Version', 'Type', 'Status', 'Enabled'].map((h) => (
-                <th
-                  key={h}
-                  className="py-2.5 px-4 text-left text-[10px] uppercase tracking-widest"
-                  style={{ color: '#5E6E85' }}
-                >
-                  {h}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {MODELS_DATA.map((m, i) => (
-              <tr
-                key={m.name}
-                className="border-b border-[#1E2A3D]"
-                style={{ backgroundColor: i % 2 === 0 ? '#0F182830' : 'transparent' }}
-              >
-                <td className="py-3 px-4 text-sm font-semibold" style={{ color: '#E8EEF7' }}>{m.name}</td>
-                <td className="py-3 px-4 font-mono text-xs" style={{ color: '#93A1B5' }}>{m.version}</td>
-                <td className="py-3 px-4 text-xs" style={{ color: '#93A1B5' }}>{m.type}</td>
-                <td className="py-3 px-4">
-                  <Badge color="#36C28B" size="sm">Active</Badge>
-                </td>
-                <td className="py-3 px-4">
-                  <button
-                    role="switch"
-                    aria-checked={enabled[m.name]}
-                    onClick={() =>
-                      setEnabled((prev) => ({ ...prev, [m.name]: !prev[m.name] }))
-                    }
-                    className="relative w-9 h-5 rounded-full transition-colors flex-shrink-0"
-                    style={{
-                      backgroundColor: enabled[m.name] ? '#3B82F6' : '#1E2A3D',
-                      border:          '1px solid #1E2A3D',
-                    }}
-                  >
-                    <span
-                      className="absolute top-0.5 left-0.5 w-4 h-4 rounded-full transition-transform"
-                      style={{
-                        backgroundColor: '#fff',
-                        transform: enabled[m.name] ? 'translateX(16px)' : 'translateX(0)',
-                      }}
-                    />
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+    <div className="space-y-4">
+      <div
+        className="rounded-xl p-3 text-sm"
+        style={{ backgroundColor: '#F4A63810', border: '1px solid #F4A63855', color: '#F4A638' }}
+      >
+        Research model inventory from Medical Intelligence API. Other Administration tabs remain demo configuration.
       </div>
-    </Card>
+      <Card title="Research models (API)">
+        {models.loading && (
+          <p className="text-sm" style={{ color: '#5E6E85' }}>
+            Loading models…
+          </p>
+        )}
+        {models.error && (
+          <div className="flex items-center gap-2 text-sm" style={{ color: '#F0476A' }}>
+            <AlertCircle size={14} />
+            {models.error}
+            <button type="button" className="ml-auto text-xs underline" style={{ color: '#3B82F6' }} onClick={models.reload}>
+              Retry
+            </button>
+          </div>
+        )}
+        {!models.loading && !models.error && (
+          <div className="overflow-x-auto">
+            <table className="w-full" style={{ borderCollapse: 'collapse' }}>
+              <thead>
+                <tr style={{ backgroundColor: '#0F1828' }}>
+                  {['Model', 'Version', 'Architecture', 'Modality', 'Status', 'Latest run', ''].map((h) => (
+                    <th
+                      key={h || 'a'}
+                      className="py-2.5 px-4 text-left text-[10px] uppercase tracking-widest"
+                      style={{ color: '#5E6E85' }}
+                    >
+                      {h}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {(models.data?.items ?? []).map((m, i) => (
+                  <React.Fragment key={m.model_id}>
+                    <tr
+                      className="border-b border-[#1E2A3D]"
+                      style={{ backgroundColor: i % 2 === 0 ? '#0F182830' : 'transparent' }}
+                    >
+                      <td className="py-3 px-4 text-sm font-semibold" style={{ color: '#E8EEF7' }}>
+                        {m.name}
+                        <div className="font-mono text-[10px] font-normal mt-0.5" style={{ color: '#5E6E85' }}>
+                          {m.model_id}
+                        </div>
+                      </td>
+                      <td className="py-3 px-4 font-mono text-xs" style={{ color: '#93A1B5' }}>
+                        {m.version}
+                      </td>
+                      <td className="py-3 px-4 text-xs" style={{ color: '#93A1B5' }}>
+                        {m.architecture}
+                      </td>
+                      <td className="py-3 px-4 text-xs" style={{ color: '#93A1B5' }}>
+                        {m.modality}
+                      </td>
+                      <td className="py-3 px-4">
+                        <Badge color="#36C28B" size="sm">
+                          {m.status}
+                        </Badge>
+                      </td>
+                      <td className="py-3 px-4 font-mono text-[10px]" style={{ color: '#93A1B5' }}>
+                        {m.latest_run_id || 'unavailable'}
+                      </td>
+                      <td className="py-3 px-4">
+                        <button
+                          type="button"
+                          className="text-xs font-semibold"
+                          style={{ color: '#3B82F6' }}
+                          onClick={() => setExpandedId(expandedId === m.model_id ? null : m.model_id)}
+                        >
+                          {expandedId === m.model_id ? 'Hide' : 'Details'}
+                        </button>
+                      </td>
+                    </tr>
+                    {expandedId === m.model_id && (
+                      <tr className="border-b border-[#1E2A3D]">
+                        <td colSpan={7} className="px-4 py-3 text-sm" style={{ color: '#93A1B5' }}>
+                          {detail.loading && 'Loading detail…'}
+                          {detail.error && (
+                            <span style={{ color: '#F0476A' }}>{detail.error}</span>
+                          )}
+                          {detail.data && detail.data.model_id === m.model_id && (
+                            <ModelDetailPanel detail={detail.data} />
+                          )}
+                        </td>
+                      </tr>
+                    )}
+                  </React.Fragment>
+                ))}
+                {(models.data?.items ?? []).length === 0 && (
+                  <tr>
+                    <td colSpan={7} className="py-6 px-4 text-sm" style={{ color: '#5E6E85' }}>
+                      No models returned.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </Card>
+    </div>
+  );
+}
+
+function ModelDetailPanel({ detail }: { detail: ModelDetail }) {
+  return (
+    <dl className="space-y-2">
+      <div>
+        <span style={{ color: '#5E6E85' }}>Task: </span>
+        {detail.task}
+      </div>
+      <div>
+        <span style={{ color: '#5E6E85' }}>Description: </span>
+        {detail.description || 'unavailable'}
+      </div>
+      <div>
+        <span style={{ color: '#5E6E85' }}>Input: </span>
+        {detail.input_method || 'unavailable'}
+      </div>
+      <div>
+        <span style={{ color: '#5E6E85' }}>Output classes: </span>
+        {(detail.output_classes ?? []).join(', ') || 'unavailable'}
+      </div>
+      <div>
+        <span style={{ color: '#5E6E85' }}>Weight size: </span>
+        {detail.weight_file_size_bytes != null
+          ? `${(detail.weight_file_size_bytes / (1024 * 1024)).toFixed(1)} MB`
+          : 'unavailable'}
+      </div>
+      <div>
+        <span style={{ color: '#5E6E85' }}>Updated: </span>
+        {detail.updated_at || 'unavailable'}
+      </div>
+    </dl>
   );
 }
 
