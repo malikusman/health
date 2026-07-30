@@ -68,13 +68,20 @@ jobs:
             docker load < /tmp/scorpius-health.tar.gz
             docker stop scorpius-health || true
             docker rm scorpius-health || true
+            mkdir -p /etc/scorpius-certs
+            if [ -f /etc/letsencrypt/live/health.dev-scorpiusnetworks.com/fullchain.pem ]; then
+              cp -L /etc/letsencrypt/live/health.dev-scorpiusnetworks.com/fullchain.pem /etc/scorpius-certs/fullchain.pem
+              cp -L /etc/letsencrypt/live/health.dev-scorpiusnetworks.com/privkey.pem /etc/scorpius-certs/privkey.pem
+              chmod 644 /etc/scorpius-certs/fullchain.pem
+              chmod 600 /etc/scorpius-certs/privkey.pem
+            fi
             docker run -d \
               --name scorpius-health \
               --restart unless-stopped \
               -p 80:80 \
               -p 443:443 \
-              -v /etc/letsencrypt/live/health.dev-scorpiusnetworks.com/fullchain.pem:/etc/nginx/certs/cert.pem:ro \
-              -v /etc/letsencrypt/live/health.dev-scorpiusnetworks.com/privkey.pem:/etc/nginx/certs/key.pem:ro \
+              -v /etc/scorpius-certs/fullchain.pem:/etc/nginx/certs/cert.pem:ro \
+              -v /etc/scorpius-certs/privkey.pem:/etc/nginx/certs/key.pem:ro \
               scorpius-health:latest
             rm -f /tmp/scorpius-health.tar.gz
             docker image prune -f
