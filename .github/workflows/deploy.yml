@@ -72,6 +72,7 @@ jobs:
               --name scorpius-health \
               --restart unless-stopped \
               -p 80:80 \
+              -p 443:443 \
               scorpius-health:latest
             rm -f /tmp/scorpius-health.tar.gz
             docker image prune -f
