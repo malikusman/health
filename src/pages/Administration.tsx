@@ -150,7 +150,7 @@ function ModelsTab() {
         className="rounded-xl p-3 text-sm"
         style={{ backgroundColor: '#F4A63810', border: '1px solid #F4A63855', color: '#F4A638' }}
       >
-        Research model inventory from Medical Intelligence API. Other Administration tabs remain demo configuration.
+        Research model inventory from Medical Intelligence API. Other Administration tabs remain product configuration.
       </div>
       <Card title="Research models (API)">
         {models.loading && (

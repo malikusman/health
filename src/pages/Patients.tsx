@@ -7,6 +7,7 @@ import { getDashboardSummary, listPatients } from '../api/endpoints';
 import { formatProbability } from '../api/client';
 import { useApiPatient } from '../api/ApiPatientContext';
 import { useAsync } from '../hooks/useAsync';
+import { formatClassLabel, formatPartitionLabel } from '../lib/format';
 import type {
   GroundTruthFilter,
   ModalityFilter,
@@ -158,7 +159,7 @@ export default function Patients() {
                   setPage(1);
                 }}
               >
-                {v === '' ? 'All' : v === 'tb' ? 'TB' : 'Non-TB'}
+                {v === '' ? 'All' : formatClassLabel(v)}
               </button>
             ))}
           </div>
@@ -178,7 +179,7 @@ export default function Patients() {
                   setPage(1);
                 }}
               >
-                {v === '' ? 'All' : v}
+                {v === '' ? 'All' : formatPartitionLabel(v)}
               </button>
             ))}
           </div>
@@ -198,7 +199,7 @@ export default function Patients() {
                   setPage(1);
                 }}
               >
-                {v === '' ? 'All' : v === 'tb' ? 'TB' : 'Non-TB'}
+                {v === '' ? 'All' : formatClassLabel(v)}
               </button>
             ))}
             <span className="text-[11px] uppercase tracking-widest font-semibold ml-2 mr-1" style={{ color: '#5E6E85' }}>
@@ -284,11 +285,13 @@ export default function Patients() {
                         {p.patient_id}
                       </td>
                       <td className="px-4 py-3">
-                        <Badge color={gtColor(p.ground_truth)}>{p.ground_truth}</Badge>
+                        <Badge color={gtColor(p.ground_truth)}>{formatClassLabel(p.ground_truth)}</Badge>
                       </td>
                       <td className="px-4 py-3">
                         {pred ? (
-                          <Badge color={predColor(pred.predicted_class)}>{pred.predicted_class}</Badge>
+                          <Badge color={predColor(pred.predicted_class)}>
+                            {formatClassLabel(pred.predicted_class)}
+                          </Badge>
                         ) : (
                           <span style={{ color: '#5E6E85' }}>unavailable</span>
                         )}
@@ -312,7 +315,7 @@ export default function Patients() {
                         {p.image_count}
                       </td>
                       <td className="px-4 py-3" style={{ color: '#93A1B5' }}>
-                        {pred?.partition ?? 'unavailable'}
+                        {pred ? formatPartitionLabel(pred.partition) : 'unavailable'}
                       </td>
                     </tr>
                   );

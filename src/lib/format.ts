@@ -1,3 +1,33 @@
+// ─── Medical Intelligence API labels ─────────────────────────────────────────
+
+/** Map API class values (tb / non_tb / unknown) to display labels. */
+export function formatClassLabel(value: string | null | undefined): string {
+  if (value == null || value === '') return 'unavailable';
+  const key = value.toLowerCase();
+  if (key === 'tb') return 'TB';
+  if (key === 'non_tb') return 'Non-TB';
+  if (key === 'unknown') return 'Unknown';
+  return titleCaseApiToken(value);
+}
+
+/** Map API partition values (train / val / test) to display labels. */
+export function formatPartitionLabel(value: string | null | undefined): string {
+  if (value == null || value === '') return 'unavailable';
+  const key = value.toLowerCase();
+  if (key === 'train') return 'Train';
+  if (key === 'val') return 'Validation';
+  if (key === 'test') return 'Test';
+  return titleCaseApiToken(value);
+}
+
+function titleCaseApiToken(value: string): string {
+  return value
+    .split(/[_\s-]+/)
+    .filter(Boolean)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase())
+    .join(' ');
+}
+
 // ─── Risk Formatting ──────────────────────────────────────────────────────────
 
 export function formatRisk(score: number): string {

@@ -1,8 +1,10 @@
 import React from 'react';
-import { Shield, Search, Bell, ChevronDown, Plus, Upload, Sun, Moon } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Shield, Search, Bell, ChevronDown, Users, Upload, Sun, Moon } from 'lucide-react';
 import { useTheme } from '../lib/ThemeContext';
 
 const Topbar: React.FC = () => {
+  const navigate = useNavigate();
   const { isDark, toggleTheme, colors } = useTheme();
   const handleComingSoon = () => window.alert('Feature coming soon');
 
@@ -106,11 +108,11 @@ const Topbar: React.FC = () => {
 
         {/* Action buttons */}
         <button
-          onClick={handleComingSoon}
+          onClick={() => navigate('/patients')}
           className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#3B82F6] hover:bg-[#2563eb] text-white text-sm font-medium transition-colors"
         >
-          <Plus className="w-3.5 h-3.5" />
-          <span className="hidden sm:inline">New Case</span>
+          <Users className="w-3.5 h-3.5" />
+          <span className="hidden sm:inline">Browse patients</span>
         </button>
 
         <button

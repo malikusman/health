@@ -2,24 +2,18 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
-  TriangleAlert,
   ChevronRight,
   Activity,
-  Clock,
-  Shield,
-  Zap,
   Eye,
   ToggleLeft,
   ToggleRight,
   GitCompare,
-  FlaskConical,
-  Microscope,
-  Brain,
-  HeartPulse,
   AlertTriangle,
   CheckCircle2,
   XCircle,
   ArrowRight,
+  Users,
+  X,
 } from 'lucide-react';
 
 import PageContainer from '../layout/PageContainer';
@@ -33,11 +27,16 @@ import { KeyValueRow } from '../components/KeyValueRow';
 import { ConfidenceMeter } from '../components/ConfidenceMeter';
 import { Sparkline } from '../components/Sparkline';
 import ChestXray from '../components/ChestXray';
+import { Badge, StatCard } from '../components';
 
 import { patient, predictions } from '../data/patient';
-import { interventions } from '../data/interventions';
 import { preventionOpportunities } from '../data/prevention';
 import { agentActivities } from '../data/careAgent';
+import { getDashboardSummary, listPredictions } from '../api/endpoints';
+import { formatMetric, formatPercentMetric, formatProbability } from '../api/client';
+import { useAsync } from '../hooks/useAsync';
+import { useApiPatient } from '../api/ApiPatientContext';
+import { formatClassLabel, formatPartitionLabel } from '../lib/format';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -169,51 +168,48 @@ function PredictedNextWeekCard() {
   );
 }
 
-function DiagnosticConfidenceCard() {
-  const missingInputs = [
-    'Smear Result',
-    'Culture Result',
-    'CT Scan',
-  ];
+function ModelMetricsCard() {
+  const navigate = useNavigate();
+  const summary = useAsync(() => getDashboardSummary(), []);
+  const run = summary.data?.latest_model_run;
 
   return (
-    <Card title="Diagnostic Confidence">
-      <div className="flex flex-col items-center gap-3">
-        <RiskDonut
-          value={82}
-          size={120}
-          color="#36C28B"
-          label="CONF"
-          subtitle="Current"
-        />
-
-        <div className="w-full">
-          <div className="mb-2">
-            <CardLabel>Missing inputs reducing confidence</CardLabel>
-          </div>
-          <div className="space-y-2">
-            {missingInputs.map((item) => (
-              <div
-                key={item}
-                className="flex items-center gap-2 py-1.5 px-2 rounded-lg"
-                style={{ backgroundColor: '#0F1828' }}
-              >
-                <TriangleAlert size={13} style={{ color: '#F4A638', flexShrink: 0 }} />
-                <span className="text-[12px]" style={{ color: '#93A1B5' }}>
-                  {item}
-                </span>
-                <StatusPill status="Pending" size="sm" />
-              </div>
-            ))}
-          </div>
-          <div
-            className="mt-3 text-[12px] font-medium"
-            style={{ color: '#36C28B' }}
-          >
-            Expected if completed: 96%
-          </div>
+    <Card
+      title="Model Metrics"
+      action={
+        <LinkButton onClick={() => navigate('/research')}>
+          Research Mode
+        </LinkButton>
+      }
+    >
+      <p className="text-[11px] mb-3" style={{ color: '#5E6E85' }}>
+        Latest model run metrics (research) — not diagnostic confidence
+      </p>
+      {summary.loading && (
+        <p className="text-sm" style={{ color: '#5E6E85' }}>
+          Loading metrics…
+        </p>
+      )}
+      {summary.error && (
+        <p className="text-sm" style={{ color: '#F0476A' }}>
+          {summary.error}
+        </p>
+      )}
+      {!summary.loading && !run && !summary.error && (
+        <p className="text-sm" style={{ color: '#5E6E85' }}>
+          No completed model run available.
+        </p>
+      )}
+      {run && (
+        <div className="space-y-0">
+          <KeyValueRow label="Model" value={run.model_id} />
+          <KeyValueRow label="ROC-AUC" value={formatMetric(run.roc_auc)} />
+          <KeyValueRow label="Sensitivity" value={formatPercentMetric(run.sensitivity)} />
+          <KeyValueRow label="Specificity" value={formatPercentMetric(run.specificity)} />
+          <KeyValueRow label="Accuracy" value={formatPercentMetric(run.accuracy)} />
+          <KeyValueRow label="Test cohort" value={String(run.test_patient_count)} />
         </div>
-      </div>
+      )}
     </Card>
   );
 }
@@ -256,7 +252,9 @@ function AtAGlanceCard() {
 
 function ImagingAICard() {
   const navigate = useNavigate();
+  const { patientId, detail } = useApiPatient();
   const [showHeatmap, setShowHeatmap] = useState(false);
+  const [cxrExpanded, setCxrExpanded] = useState(false);
 
   const findings = [
     'Right upper lobe opacity with ill-defined borders',
@@ -264,6 +262,9 @@ function ImagingAICard() {
     'No pleural effusion identified on this view',
     'Patchy consolidation pattern consistent with TB infiltrate',
   ];
+
+  const studyId = detail?.studies[0]?.study_id;
+  const canOpenCt = Boolean(patientId && studyId);
 
   return (
     <Card
@@ -330,18 +331,20 @@ function ImagingAICard() {
       </div>
 
       {/* Action buttons */}
-      <div className="mt-3 flex gap-2">
+      <div className="mt-3 flex gap-2 flex-wrap">
         <button
-          onClick={() => navigate('/imaging')}
+          type="button"
+          onClick={() => setCxrExpanded(true)}
           className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12px] font-medium transition-colors"
           style={{ backgroundColor: '#1E2A3D', color: '#E8EEF7' }}
           onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#243040')}
           onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#1E2A3D')}
         >
           <Eye size={13} />
-          View Full Image
+          Open chest X-ray
         </button>
         <button
+          type="button"
           onClick={() => setShowHeatmap((v) => !v)}
           className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12px] font-medium transition-colors"
           style={{
@@ -352,7 +355,31 @@ function ImagingAICard() {
           {showHeatmap ? <ToggleRight size={13} /> : <ToggleLeft size={13} />}
           Heatmap {showHeatmap ? 'On' : 'Off'}
         </button>
+        {canOpenCt ? (
+          <button
+            type="button"
+            onClick={() =>
+              navigate(
+                `/imaging?patientId=${encodeURIComponent(patientId!)}&studyId=${encodeURIComponent(studyId!)}`,
+              )
+            }
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12px] font-medium transition-colors"
+            style={{ backgroundColor: '#1E2A3D', color: '#3B82F6' }}
+          >
+            Open CT Imaging
+          </button>
+        ) : (
+          <button
+            type="button"
+            onClick={() => navigate('/patients')}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12px] font-medium transition-colors"
+            style={{ backgroundColor: '#1E2A3D', color: '#93A1B5' }}
+          >
+            Browse CT cohort
+          </button>
+        )}
         <button
+          type="button"
           onClick={() => alert('Prior comparison not available in this session.')}
           className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12px] font-medium transition-colors"
           style={{ backgroundColor: '#1E2A3D', color: '#93A1B5' }}
@@ -383,79 +410,156 @@ function ImagingAICard() {
             </div>
           </div>
           <button
-            disabled
-            className="flex-1 px-3 py-2 rounded-lg border border-dashed text-center opacity-50 cursor-not-allowed"
+            type="button"
+            onClick={() => (canOpenCt
+              ? navigate(
+                  `/imaging?patientId=${encodeURIComponent(patientId!)}&studyId=${encodeURIComponent(studyId!)}`,
+                )
+              : navigate('/patients'))}
+            className="flex-1 px-3 py-2 rounded-lg border text-center transition-colors"
             style={{ borderColor: '#1E2A3D', backgroundColor: '#0B1220' }}
           >
-            <div className="text-[11px]" style={{ color: '#5E6E85' }}>
-              + Add CT Scan
+            <div className="text-[11px]" style={{ color: '#93A1B5' }}>
+              CT Imaging
             </div>
             <div className="text-[10px] mt-0.5" style={{ color: '#5E6E85' }}>
-              Coming Soon
+              {canOpenCt ? 'Open selected study' : 'Select a patient'}
             </div>
           </button>
         </div>
       </div>
+
+      {cxrExpanded && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-6"
+          style={{ backgroundColor: '#0B1220EE' }}
+          role="dialog"
+          aria-modal="true"
+          aria-label="Chest X-ray"
+          onClick={() => setCxrExpanded(false)}
+        >
+          <div
+            className="relative w-full max-w-2xl rounded-xl p-4"
+            style={{ backgroundColor: '#121C2E', border: '1px solid #1E2A3D' }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between mb-3">
+              <div>
+                <div className="text-sm font-semibold" style={{ color: '#E8EEF7' }}>
+                  Chest X-ray PA
+                </div>
+                <div className="text-[11px]" style={{ color: '#5E6E85' }}>
+                  Encounter imaging · {patient.name}
+                </div>
+              </div>
+              <button
+                type="button"
+                aria-label="Close"
+                onClick={() => setCxrExpanded(false)}
+                className="p-2 rounded-lg"
+                style={{ color: '#93A1B5', backgroundColor: '#1E2A3D' }}
+              >
+                <X size={16} />
+              </button>
+            </div>
+            <div className="rounded-lg overflow-hidden" style={{ backgroundColor: '#0a0e16' }}>
+              <ChestXray showHeatmap={showHeatmap} />
+            </div>
+          </div>
+        </div>
+      )}
     </Card>
   );
 }
 
-function InterventionEngineCard() {
+function PriorityPredictionsCard() {
   const navigate = useNavigate();
-  const topInterventions = interventions.slice(0, 4);
+  const preds = useAsync(
+    () =>
+      listPredictions({
+        partition: 'test',
+        sort_by: 'tb_probability',
+        sort_order: 'desc',
+        page: 1,
+        page_size: 5,
+      }),
+    [],
+  );
+  const items = preds.data?.items ?? [];
 
   return (
     <Card
-      title="Autonomous Intervention Engine"
-      badge="4 Active"
-      badgeColor="#F0476A"
+      title="Priority Predictions"
+      badge="Test"
+      badgeColor="#3B82F6"
       action={
-        <LinkButton onClick={() => navigate('/intervention')}>
-          View All Interventions
+        <LinkButton onClick={() => navigate('/research')}>
+          View all predictions
         </LinkButton>
       }
     >
-      {/* Table header */}
-      <div
-        className="grid gap-2 pb-2 mb-1 border-b border-[#1E2A3D]"
-        style={{ gridTemplateColumns: '1fr 100px 120px 70px' }}
-      >
-        {['Action', 'Status', 'Destination', 'Time'].map((h) => (
-          <span key={h} className="text-[10px] uppercase tracking-widest" style={{ color: '#5E6E85' }}>
-            {h}
-          </span>
-        ))}
-      </div>
-
-      {/* Table rows */}
-      <div className="divide-y divide-[#1E2A3D]">
-        {topInterventions.map((intervention) => {
-          const timeStr = intervention.createdAt.split(', ')[1] ?? intervention.createdAt;
-          return (
-            <div
-              key={intervention.id}
-              className="grid gap-2 py-2.5 items-center"
-              style={{ gridTemplateColumns: '1fr 100px 120px 70px' }}
-            >
-              <div>
-                <div className="text-[12px] font-medium leading-snug" style={{ color: '#E8EEF7' }}>
-                  {intervention.title}
-                </div>
-                <div className="text-[11px] mt-0.5" style={{ color: '#5E6E85' }}>
-                  {intervention.type}
-                </div>
-              </div>
-              <StatusPill status={intervention.status} size="sm" />
-              <div className="text-[11px] truncate" style={{ color: '#93A1B5' }}>
-                {intervention.destination}
-              </div>
-              <div className="text-[11px] tabular-nums" style={{ color: '#5E6E85' }}>
-                {timeStr}
-              </div>
-            </div>
-          );
-        })}
-      </div>
+      <p className="text-[11px] mb-3" style={{ color: '#5E6E85' }}>
+        Highest TB probability in the test partition (research)
+      </p>
+      {preds.loading && (
+        <p className="text-sm" style={{ color: '#5E6E85' }}>
+          Loading predictions…
+        </p>
+      )}
+      {preds.error && (
+        <p className="text-sm" style={{ color: '#F0476A' }}>
+          {preds.error}
+        </p>
+      )}
+      {!preds.loading && !preds.error && items.length === 0 && (
+        <p className="text-sm" style={{ color: '#5E6E85' }}>
+          No test-partition predictions available.
+        </p>
+      )}
+      {items.length > 0 && (
+        <>
+          <div
+            className="grid gap-2 pb-2 mb-1 border-b border-[#1E2A3D]"
+            style={{ gridTemplateColumns: '1fr 80px 70px 60px 70px' }}
+          >
+            {['Patient', 'Predicted', 'TB Prob.', 'Correct', 'Partition'].map((h) => (
+              <span key={h} className="text-[10px] uppercase tracking-widest" style={{ color: '#5E6E85' }}>
+                {h}
+              </span>
+            ))}
+          </div>
+          <div className="divide-y divide-[#1E2A3D]">
+            {items.map((p) => (
+              <button
+                key={p.prediction_id}
+                type="button"
+                className="grid gap-2 py-2.5 items-center w-full text-left transition-colors hover:bg-[#1E2A3D]/40"
+                style={{ gridTemplateColumns: '1fr 80px 70px 60px 70px' }}
+                onClick={() => navigate(`/predictions/${encodeURIComponent(p.prediction_id)}`)}
+              >
+                <span className="text-[12px] font-mono truncate" style={{ color: '#3B82F6' }}>
+                  {p.patient_id}
+                </span>
+                <Badge color={p.predicted_class === 'tb' ? '#F4A638' : '#6B8AFE'}>
+                  {formatClassLabel(p.predicted_class)}
+                </Badge>
+                <span className="text-[12px] tabular-nums" style={{ color: '#E8EEF7' }}>
+                  {formatProbability(p.tb_probability)}
+                </span>
+                <span
+                  className="text-[12px]"
+                  style={{ color: p.correct ? '#36C28B' : '#F0476A' }}
+                >
+                  {p.correct ? 'Yes' : 'No'}
+                </span>
+                <span className="text-[11px]" style={{ color: '#93A1B5' }}>
+                  {formatPartitionLabel(p.partition)}
+                </span>
+              </button>
+            ))}
+          </div>
+        </>
+      )}
     </Card>
   );
 }
@@ -708,9 +812,45 @@ function RecommendationsCard() {
 
 // ─── Main Dashboard ───────────────────────────────────────────────────────────
 
-const Dashboard: React.FC = () => {
+function CohortOverviewStrip() {
   const navigate = useNavigate();
+  const summary = useAsync(() => getDashboardSummary(), []);
+  const s = summary.data;
 
+  return (
+    <Card className="mb-4">
+      <div className="flex items-start justify-between gap-4 flex-wrap mb-4">
+        <div>
+          <div className="flex items-center gap-2">
+            <Users size={16} style={{ color: '#3B82F6' }} />
+            <h2 className="text-[14px] font-semibold" style={{ color: '#E8EEF7' }}>
+              Medical Intelligence cohort
+            </h2>
+          </div>
+          <p className="text-[12px] mt-1" style={{ color: '#5E6E85' }}>
+            Live cohort counts from the Medical Intelligence API
+          </p>
+        </div>
+        <LinkButton onClick={() => navigate('/patients')}>Browse patients</LinkButton>
+      </div>
+      {summary.error && (
+        <p className="text-sm mb-2" style={{ color: '#F0476A' }}>
+          {summary.error}
+        </p>
+      )}
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+        <StatCard label="Patients" value={s ? s.patients.total : '—'} color="#E8EEF7" />
+        <StatCard label="TB" value={s ? s.patients.tb : '—'} color="#F0476A" />
+        <StatCard label="Non-TB" value={s ? s.patients.non_tb : '—'} color="#36C28B" />
+        <StatCard label="CT Studies" value={s ? s.studies.ct : '—'} color="#6B8AFE" />
+        <StatCard label="Images" value={s ? s.images.total : '—'} color="#E8EEF7" />
+        <StatCard label="Active Models" value={s ? s.models.active : '—'} color="#3B82F6" />
+      </div>
+    </Card>
+  );
+}
+
+const Dashboard: React.FC = () => {
   return (
     <PageContainer>
       {/* Page header */}
@@ -795,11 +935,13 @@ const Dashboard: React.FC = () => {
         </motion.div>
       </div>
 
+      <CohortOverviewStrip />
+
       {/* ROW 1 */}
       <div className="grid grid-cols-4 gap-4 mb-4">
         <PatientStatusCard />
         <PredictedNextWeekCard />
-        <DiagnosticConfidenceCard />
+        <ModelMetricsCard />
         <AtAGlanceCard />
       </div>
 
@@ -807,7 +949,7 @@ const Dashboard: React.FC = () => {
       <div className="grid grid-cols-4 gap-4 mb-4">
         <ImagingAICard />
         <div className="col-span-2 flex flex-col gap-4">
-          <InterventionEngineCard />
+          <PriorityPredictionsCard />
           <PreventionOpportunitiesCard />
         </div>
       </div>

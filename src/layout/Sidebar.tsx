@@ -12,34 +12,24 @@ interface NavGroup { group: string; items: NavItem[] }
 
 const NAV_GROUPS: NavGroup[] = [
   {
-    group: 'Monitor',
+    group: 'Clinical Operations',
     items: [
       { label: 'Dashboard', icon: LayoutDashboard, to: '/' },
-      { label: 'Patients', icon: Users, to: '/patients' },
-      { label: 'Imaging', icon: ScanLine, to: '/imaging' },
       { label: 'Labs & Biomarkers', icon: FlaskConical, to: '/labs' },
       { label: 'Risk Engine', icon: Brain, to: '/risk-engine' },
-    ],
-  },
-  {
-    group: 'Intelligence',
-    items: [
       { label: 'Autonomous Intervention', icon: Zap, to: '/intervention' },
       { label: 'Autonomous Prevention', icon: Shield, to: '/prevention' },
-    ],
-  },
-  {
-    group: 'Operate',
-    items: [
       { label: 'Care Coordination', icon: HeartHandshake, to: '/care' },
       { label: 'Reports', icon: FileText, to: '/reports' },
-      { label: 'Research Mode', icon: Microscope, to: '/research' },
+      { label: 'Audit & Logs', icon: ClipboardList, to: '/audit' },
     ],
   },
   {
-    group: 'Govern',
+    group: 'Medical Intelligence',
     items: [
-      { label: 'Audit & Logs', icon: ClipboardList, to: '/audit' },
+      { label: 'Patients', icon: Users, to: '/patients' },
+      { label: 'CT Imaging', icon: ScanLine, to: '/imaging' },
+      { label: 'Research Mode', icon: Microscope, to: '/research' },
       { label: 'Administration', icon: Settings, to: '/administration' },
     ],
   },
@@ -150,8 +140,8 @@ const Sidebar: React.FC = () => {
               <span className="text-[11px]" style={{ color: colors.textMuted }}>Uptime</span>
               <span className="text-[11px] tabular-nums ml-auto" style={{ color: colors.textSecondary }}>99.9%</span>
             </div>
-            <span className="inline-block px-1.5 py-0.5 rounded text-[10px] font-semibold uppercase tracking-wide bg-[#F4A638]/15 text-[#F4A638]">
-              Demo · Synthetic
+            <span className="inline-block px-1.5 py-0.5 rounded text-[10px] font-semibold uppercase tracking-wide bg-[#3B82F6]/15 text-[#3B82F6]">
+              Pilot
             </span>
           </div>
         ) : (

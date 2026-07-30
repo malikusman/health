@@ -21,6 +21,7 @@ import {
 } from '../api/endpoints';
 import { formatMetric, formatPercentMetric, formatProbability } from '../api/client';
 import { useAsync } from '../hooks/useAsync';
+import { formatClassLabel, formatPartitionLabel } from '../lib/format';
 
 const PIE_COLORS = ['#F0476A', '#36C28B', '#5E6E85'];
 
@@ -87,7 +88,9 @@ export default function ResearchMode() {
   const pieData =
     datasets.data?.items.map((d) => ({
       id: d.dataset_id,
-      name: d.primary_class === 'tb' ? 'TB' : d.primary_class === 'non_tb' ? 'Non-TB' : d.name,
+      name: formatClassLabel(d.primary_class) !== 'unavailable'
+        ? formatClassLabel(d.primary_class)
+        : d.name,
       value: d.patient_count,
       color: d.primary_class === 'tb' ? PIE_COLORS[0] : d.primary_class === 'non_tb' ? PIE_COLORS[1] : PIE_COLORS[2],
     })) ?? [];
@@ -454,10 +457,14 @@ export default function ResearchMode() {
                       </Link>
                     </td>
                     <td className="px-4 py-3">
-                      <Badge color={p.ground_truth === 'tb' ? '#F0476A' : '#36C28B'}>{p.ground_truth}</Badge>
+                      <Badge color={p.ground_truth === 'tb' ? '#F0476A' : '#36C28B'}>
+                        {formatClassLabel(p.ground_truth)}
+                      </Badge>
                     </td>
                     <td className="px-4 py-3">
-                      <Badge color={p.predicted_class === 'tb' ? '#F4A638' : '#6B8AFE'}>{p.predicted_class}</Badge>
+                      <Badge color={p.predicted_class === 'tb' ? '#F4A638' : '#6B8AFE'}>
+                        {formatClassLabel(p.predicted_class)}
+                      </Badge>
                     </td>
                     <td className="px-4 py-3 tabular-nums" style={{ color: '#E8EEF7' }}>
                       {formatProbability(p.tb_probability)}
@@ -466,7 +473,7 @@ export default function ResearchMode() {
                       {p.correct ? 'Yes' : 'No'}
                     </td>
                     <td className="px-4 py-3" style={{ color: '#93A1B5' }}>
-                      {p.partition}
+                      {formatPartitionLabel(p.partition)}
                     </td>
                     <td className="px-4 py-3">
                       <Link

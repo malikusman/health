@@ -7,6 +7,7 @@ import { getPatient, getPatientPredictions } from '../api/endpoints';
 import { formatProbability } from '../api/client';
 import { useApiPatient } from '../api/ApiPatientContext';
 import { useAsync } from '../hooks/useAsync';
+import { formatClassLabel, formatPartitionLabel } from '../lib/format';
 
 function gtColor(gt: string): string {
   if (gt === 'tb') return '#F0476A';
@@ -96,11 +97,15 @@ export default function PatientCase() {
             className="rounded-xl p-3 mb-6 text-sm"
             style={{ backgroundColor: '#F4A63810', border: '1px solid #F4A63855', color: '#F4A638' }}
           >
-            Research / demo outputs only — not for clinical diagnosis. Probabilities are model scores, not clinical confidence.
+            Research outputs only — not for clinical diagnosis. Probabilities are model scores, not clinical confidence.
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-            <StatCard label="Ground Truth" value={patient.data.ground_truth} color={gtColor(patient.data.ground_truth)} />
+            <StatCard
+              label="Ground Truth"
+              value={formatClassLabel(patient.data.ground_truth)}
+              color={gtColor(patient.data.ground_truth)}
+            />
             <StatCard
               label="TB Prob. (research)"
               value={pred ? formatProbability(pred.tb_probability) : 'unavailable'}
@@ -142,7 +147,9 @@ export default function PatientCase() {
                   <div className="flex justify-between gap-4">
                     <dt style={{ color: '#5E6E85' }}>Predicted class</dt>
                     <dd>
-                      <Badge color={gtColor(pred.predicted_class)}>{pred.predicted_class}</Badge>
+                      <Badge color={gtColor(pred.predicted_class)}>
+                        {formatClassLabel(pred.predicted_class)}
+                      </Badge>
                     </dd>
                   </div>
                   <div className="flex justify-between gap-4">
@@ -171,7 +178,7 @@ export default function PatientCase() {
                   </div>
                   <div className="flex justify-between gap-4">
                     <dt style={{ color: '#5E6E85' }}>Partition</dt>
-                    <dd style={{ color: '#93A1B5' }}>{pred.partition}</dd>
+                    <dd style={{ color: '#93A1B5' }}>{formatPartitionLabel(pred.partition)}</dd>
                   </div>
                   <div className="flex justify-between gap-4">
                     <dt style={{ color: '#5E6E85' }}>Model run</dt>
@@ -237,7 +244,9 @@ export default function PatientCase() {
                     {(predHistory.data ?? []).map((p) => (
                       <tr key={p.prediction_id} style={{ borderBottom: '1px solid #1E2A3D' }}>
                         <td className="px-2 py-3">
-                          <Badge color={gtColor(p.predicted_class)}>{p.predicted_class}</Badge>
+                          <Badge color={gtColor(p.predicted_class)}>
+                            {formatClassLabel(p.predicted_class)}
+                          </Badge>
                         </td>
                         <td className="px-2 py-3 tabular-nums" style={{ color: '#E8EEF7' }}>
                           {formatProbability(p.tb_probability)}
@@ -246,7 +255,7 @@ export default function PatientCase() {
                           {p.correct ? 'Yes' : 'No'}
                         </td>
                         <td className="px-2 py-3" style={{ color: '#93A1B5' }}>
-                          {p.partition}
+                          {formatPartitionLabel(p.partition)}
                         </td>
                         <td className="px-2 py-3 font-mono text-xs" style={{ color: '#93A1B5' }}>
                           {p.model_run_id}

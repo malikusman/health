@@ -6,6 +6,7 @@ import { Card, Badge, StatCard } from '../components';
 import { getPrediction } from '../api/endpoints';
 import { formatProbability } from '../api/client';
 import { useAsync } from '../hooks/useAsync';
+import { formatClassLabel, formatPartitionLabel } from '../lib/format';
 
 function clsColor(c: string): string {
   if (c === 'tb') return '#F0476A';
@@ -73,7 +74,7 @@ export default function PredictionDetail() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
             <StatCard
               label="Predicted"
-              value={pred.data.predicted_class}
+              value={formatClassLabel(pred.data.predicted_class)}
               color={clsColor(pred.data.predicted_class)}
             />
             <StatCard
@@ -110,13 +111,17 @@ export default function PredictionDetail() {
               <div className="flex justify-between gap-4">
                 <dt style={{ color: '#5E6E85' }}>Ground truth</dt>
                 <dd>
-                  <Badge color={clsColor(pred.data.ground_truth)}>{pred.data.ground_truth}</Badge>
+                  <Badge color={clsColor(pred.data.ground_truth)}>
+                    {formatClassLabel(pred.data.ground_truth)}
+                  </Badge>
                 </dd>
               </div>
               <div className="flex justify-between gap-4">
                 <dt style={{ color: '#5E6E85' }}>Predicted class</dt>
                 <dd>
-                  <Badge color={clsColor(pred.data.predicted_class)}>{pred.data.predicted_class}</Badge>
+                  <Badge color={clsColor(pred.data.predicted_class)}>
+                    {formatClassLabel(pred.data.predicted_class)}
+                  </Badge>
                 </dd>
               </div>
               <div className="flex justify-between gap-4">
@@ -127,7 +132,7 @@ export default function PredictionDetail() {
               </div>
               <div className="flex justify-between gap-4">
                 <dt style={{ color: '#5E6E85' }}>Partition</dt>
-                <dd style={{ color: '#93A1B5' }}>{pred.data.partition}</dd>
+                <dd style={{ color: '#93A1B5' }}>{formatPartitionLabel(pred.data.partition)}</dd>
               </div>
               <div className="flex justify-between gap-4">
                 <dt style={{ color: '#5E6E85' }}>Model</dt>

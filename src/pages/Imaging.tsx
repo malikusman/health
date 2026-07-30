@@ -13,6 +13,7 @@ import { getPatient, getStudy, getStudyImages } from '../api/endpoints';
 import { formatProbability, resolveMediaUrl } from '../api/client';
 import { useApiPatient } from '../api/ApiPatientContext';
 import { useAsync } from '../hooks/useAsync';
+import { formatClassLabel } from '../lib/format';
 
 export default function Imaging() {
   const navigate = useNavigate();
@@ -71,14 +72,14 @@ export default function Imaging() {
         <div className="flex items-center gap-3 mb-6">
           <ScanLine size={20} color="#3B82F6" />
           <h2 className="text-[20px] font-semibold" style={{ color: '#E8EEF7' }}>
-            Imaging
+            CT Imaging
           </h2>
         </div>
         <Card>
           <EmptyState
             icon={<Users size={24} />}
             title="Select a patient from Patients"
-            subtitle="Open a research patient case, then choose Open Imaging to load CT slices from the Medical Intelligence API."
+            subtitle="Open a patient case, then choose Open Imaging to load CT slices."
           />
           <div className="flex justify-center pb-4">
             <Link
@@ -86,7 +87,7 @@ export default function Imaging() {
               className="px-4 py-2 rounded-lg text-sm font-semibold"
               style={{ backgroundColor: '#3B82F6', color: '#fff' }}
             >
-              Go to Patients
+              Browse patients
             </Link>
           </div>
         </Card>
@@ -101,21 +102,32 @@ export default function Imaging() {
           <ScanLine size={20} color="#3B82F6" />
           <div>
             <h2 className="text-[20px] font-semibold leading-tight" style={{ color: '#E8EEF7' }}>
-              Imaging
+              CT Imaging
             </h2>
             <p className="text-[13px] mt-0.5" style={{ color: '#5E6E85' }}>
-              {patient.data?.display_id ?? patientId} · CT from Medical Intelligence API
+              {patient.data?.display_id ?? patientId}
+              {study.data?.modality ? ` · ${study.data.modality}` : ''}
+              {studyId ? ` · Study ${studyId}` : ''}
             </p>
           </div>
         </div>
-        <button
-          type="button"
-          className="text-xs font-semibold px-3 py-1.5 rounded-lg"
-          style={{ backgroundColor: '#1E2A3D', color: '#3B82F6' }}
-          onClick={() => navigate(`/patients/${encodeURIComponent(patientId)}`)}
-        >
-          Back to case
-        </button>
+        <div className="flex items-center gap-2">
+          <Link
+            to="/patients"
+            className="text-xs font-semibold px-3 py-1.5 rounded-lg"
+            style={{ backgroundColor: '#1E2A3D', color: '#93A1B5' }}
+          >
+            Change patient
+          </Link>
+          <button
+            type="button"
+            className="text-xs font-semibold px-3 py-1.5 rounded-lg"
+            style={{ backgroundColor: '#1E2A3D', color: '#3B82F6' }}
+            onClick={() => navigate(`/patients/${encodeURIComponent(patientId)}`)}
+          >
+            Back to case
+          </button>
+        </div>
       </div>
 
       <div
@@ -246,7 +258,7 @@ export default function Imaging() {
                 <dd>
                   {prediction ? (
                     <Badge color={prediction.predicted_class === 'tb' ? '#F0476A' : '#36C28B'}>
-                      {prediction.predicted_class}
+                      {formatClassLabel(prediction.predicted_class)}
                     </Badge>
                   ) : (
                     <span style={{ color: '#5E6E85' }}>unavailable</span>
@@ -264,7 +276,7 @@ export default function Imaging() {
                 <dd>
                   {prediction ? (
                     <Badge color={prediction.ground_truth === 'tb' ? '#F0476A' : '#36C28B'}>
-                      {prediction.ground_truth}
+                      {formatClassLabel(prediction.ground_truth)}
                     </Badge>
                   ) : (
                     <span style={{ color: '#5E6E85' }}>unavailable</span>
