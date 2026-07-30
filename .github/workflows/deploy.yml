@@ -73,6 +73,8 @@ jobs:
               --restart unless-stopped \
               -p 80:80 \
               -p 443:443 \
+              -v /etc/letsencrypt/live/health.dev-scorpiusnetworks.com/fullchain.pem:/etc/nginx/certs/cert.pem:ro \
+              -v /etc/letsencrypt/live/health.dev-scorpiusnetworks.com/privkey.pem:/etc/nginx/certs/key.pem:ro \
               scorpius-health:latest
             rm -f /tmp/scorpius-health.tar.gz
             docker image prune -f
