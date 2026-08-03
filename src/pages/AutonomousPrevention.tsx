@@ -35,8 +35,10 @@ import {
   DataTable,
   SectionTitle,
 } from '../components';
-import { preventionOpportunities } from '../data/prevention';
+import { preventionOpportunities, buildAlignedPrevention } from '../data/prevention';
 import type { PreventionOpportunity } from '../lib/types';
+import { loadDemoSpine } from '../api/demoSpine';
+import { useAsync } from '../hooks/useAsync';
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -251,7 +253,11 @@ const preventedData = [
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 const AutonomousPrevention: React.FC = () => {
-  const openOpportunities = preventionOpportunities.filter((o) => o.status === 'Open');
+  const spine = useAsync(() => loadDemoSpine(0), []);
+  const liveOpportunities = spine.data
+    ? buildAlignedPrevention(spine.data)
+    : preventionOpportunities;
+  const openOpportunities = liveOpportunities.filter((o) => o.status === 'Open');
 
   // Playbook toggle state
   const [playbook, setPlaybook] = useState({
@@ -362,7 +368,7 @@ const AutonomousPrevention: React.FC = () => {
     },
   ];
 
-  const allRows = preventionOpportunities as unknown as Record<string, unknown>[];
+  const allRows = liveOpportunities as unknown as Record<string, unknown>[];
 
   return (
     <PageContainer>
@@ -371,9 +377,18 @@ const AutonomousPrevention: React.FC = () => {
         {/* ── Section Title ─────────────────────────────────────────────── */}
         <SectionTitle
           title="Autonomous Prevention"
-          subtitle="Predictive intelligence — surface future risks before adverse events occur."
+          subtitle="Agentic AI prototype — predictive opportunities from live research signals; coming soon."
           icon={<Shield size={22} style={{ color: '#36C28B' }} />}
         />
+
+        <div
+          className="rounded-xl px-4 py-3 text-sm"
+          style={{ backgroundColor: '#F4A63815', border: '1px solid #F4A63855', color: '#F4A638' }}
+        >
+          Coming soon: prevention agents closing confirmatory and governance gaps. Opportunities below are
+          aligned to Medical Intelligence API research outputs
+          {spine.data ? ` (featured case ${spine.data.patient.display_id})` : ''}. Not for clinical use.
+        </div>
 
         {/* ── KPI Strip ─────────────────────────────────────────────────── */}
         <div className="grid grid-cols-4 gap-4">
@@ -384,23 +399,23 @@ const AutonomousPrevention: React.FC = () => {
             icon={<AlertTriangle size={18} />}
           />
           <StatCard
-            label="Events Prevented MTD"
-            value={37}
+            label="Prototype Total"
+            value={liveOpportunities.length}
             color="#36C28B"
             icon={<CheckCircle size={18} />}
           />
           <StatCard
-            label="Cost / Delay Avoided MTD"
-            value="$84,200"
+            label="Status"
+            value="Coming Soon"
             color="#3B82F6"
             icon={<TrendingUp size={18} />}
-            subtitle="Illustrative estimate"
+            subtitle="Not executed live"
           />
           <StatCard
-            label="Forecast Horizon"
-            value="7 Days"
-            color="#5E6E85"
-            icon={<Clock size={18} />}
+            label="Featured case"
+            value={spine.data?.patient.display_id ?? '—'}
+            color="#6B8AFE"
+            icon={<Shield size={18} />}
           />
         </div>
 
@@ -563,7 +578,7 @@ const AutonomousPrevention: React.FC = () => {
         {/* ── All Opportunities Table ────────────────────────────────────── */}
         <Card
           title="All Prevention Opportunities"
-          badge={preventionOpportunities.length}
+          badge={liveOpportunities.length}
           badgeColor="#6B8AFE"
         >
           <DataTable columns={allColumns} rows={allRows} />

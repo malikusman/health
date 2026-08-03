@@ -1,82 +1,108 @@
 import type { PreventionOpportunity } from '../lib/types';
+import type { DemoSpine } from '../api/demoSpine';
+
+/** Prevention agent prototypes aligned to live research API (coming soon). */
+export function buildAlignedPrevention(spine: DemoSpine): PreventionOpportunity[] {
+  const { patient, tbProbabilityLabel, summary, modelName, studyId } = spine;
+  const display = patient.display_id;
+  const fp = summary.latest_model_run?.confusion_matrix.false_positive ?? 2;
+
+  return [
+    {
+      id: 'PREV-API-001',
+      title: 'Specialist review lag on high research TB probability',
+      impact: 'High',
+      predictedOutcome: `If ${display} (research TB ${tbProbabilityLabel}) waits without specialist attention, confirmatory pathway and isolation decisions may be delayed once clinical systems are connected.`,
+      probability: 73,
+      suggestedAction:
+        'Coming soon: auto-prioritise in specialist queue and escalate if review not acknowledged within a configured SLA.',
+      confidence: 78,
+      forecastDays: 5,
+      status: 'Open',
+    },
+    {
+      id: 'PREV-API-002',
+      title: 'Confirmatory labs not yet connected to research signal',
+      impact: 'High',
+      predictedOutcome: `${modelName} flagged ${display}, but Phase 1 API has no lab endpoints. Without an agentic bridge, operators may miss confirmatory workup.`,
+      probability: 90,
+      suggestedAction:
+        'Coming soon: when LIS is integrated, agent proposes smear/culture tasks tied to research TB probability and threshold.',
+      confidence: 90,
+      forecastDays: 1,
+      status: 'Open',
+    },
+    {
+      id: 'PREV-API-003',
+      title: 'CT study awaiting human verification',
+      impact: 'Medium',
+      predictedOutcome: `Study ${studyId} is viewable in CT Imaging; without a radiology-priority agent, formal review may lag AI research scoring.`,
+      probability: 68,
+      suggestedAction:
+        'Coming soon: escalate to radiology worklist if research-predicted TB case lacks human verification within policy window.',
+      confidence: 72,
+      forecastDays: 1,
+      status: 'Open',
+    },
+    {
+      id: 'PREV-API-004',
+      title: 'False-positive governance on latest model run',
+      impact: 'Medium',
+      predictedOutcome: `Latest run reports ${fp} false positive(s) on the test cohort. Unreviewed FPs can erode trust if agents auto-escalate without human-in-the-loop.`,
+      probability: 55,
+      suggestedAction:
+        'Coming soon: governance agent flags FP cases from confusion matrix for QA review before autonomous actions.',
+      confidence: 70,
+      forecastDays: 7,
+      status: 'Actioned',
+    },
+  ];
+}
 
 export const preventionOpportunities: PreventionOpportunity[] = [
   {
-    id: 'PREV-001',
-    title: 'Likely delay in pulmonology review',
+    id: 'PREV-API-001',
+    title: 'Specialist review lag on high research TB probability',
     impact: 'High',
     predictedOutcome:
-      'Without specialist input within 24 hours, empirical TB therapy may be delayed by 3–5 days, increasing infection transmission risk and worsening patient prognosis.',
+      'High research TB probability cases may wait without specialist attention until clinical systems connect.',
     probability: 73,
-    suggestedAction:
-      'Auto-prioritise patient in pulmonology specialist queue and send escalation alert if review not completed within 4 hours.',
+    suggestedAction: 'Coming soon: auto-prioritise specialist queue.',
     confidence: 78,
     forecastDays: 5,
     status: 'Open',
   },
   {
-    id: 'PREV-002',
-    title: 'Missing smear result reducing diagnostic confidence',
+    id: 'PREV-API-002',
+    title: 'Confirmatory labs not yet connected to research signal',
     impact: 'High',
-    predictedOutcome:
-      'Absence of sputum smear result leaves the diagnosis unconfirmed, creating a 90% probability that isolation and treatment decisions will be made without microbiological evidence.',
+    predictedOutcome: 'Phase 1 API has no lab endpoints — confirmatory pathway is a planned agentic bridge.',
     probability: 90,
-    suggestedAction:
-      'Trigger nursing task to collect induced sputum sample within 2 hours; alert duty doctor if specimen not received by lab by 12:00 PM.',
+    suggestedAction: 'Coming soon: LIS-integrated confirmatory orders.',
     confidence: 90,
     forecastDays: 1,
     status: 'Open',
   },
   {
-    id: 'PREV-003',
-    title: 'Contact tracing initiation delay',
-    impact: 'High',
-    predictedOutcome:
-      'Each 24-hour delay in public health notification risks undetected transmission to household contacts, with an estimated 3–5 individuals at exposure risk.',
+    id: 'PREV-API-003',
+    title: 'CT study awaiting human verification',
+    impact: 'Medium',
+    predictedOutcome: 'Research CT scores may outpace formal radiology verification without a priority agent.',
     probability: 68,
-    suggestedAction:
-      'Notify Public Health England contact tracing team automatically upon clinical confirmation of TB suspicion, ahead of laboratory confirmation.',
+    suggestedAction: 'Coming soon: radiology worklist escalation.',
     confidence: 72,
+    forecastDays: 1,
+    status: 'Open',
+  },
+  {
+    id: 'PREV-API-004',
+    title: 'False-positive governance on latest model run',
+    impact: 'Medium',
+    predictedOutcome: 'Unreviewed false positives can erode trust if agents auto-escalate.',
+    probability: 55,
+    suggestedAction: 'Coming soon: FP QA review agent.',
+    confidence: 70,
     forecastDays: 7,
     status: 'Actioned',
-  },
-  {
-    id: 'PREV-004',
-    title: 'Radiology report overdue',
-    impact: 'Medium',
-    predictedOutcome:
-      'AI-classified CXR remains without radiologist verification for >2 hours, creating a governance gap and delaying definitive imaging interpretation.',
-    probability: 82,
-    suggestedAction:
-      'Escalate to on-call radiologist via PACS alert if formal report not submitted within 90 minutes of AI classification.',
-    confidence: 85,
-    forecastDays: 1,
-    status: 'Actioned',
-  },
-  {
-    id: 'PREV-005',
-    title: 'Nutritional assessment not yet requested',
-    impact: 'Medium',
-    predictedOutcome:
-      'BMI of 21.3 combined with documented 6 kg weight loss indicates significant nutritional compromise; without dietitian involvement, recovery trajectory may be slower.',
-    probability: 61,
-    suggestedAction:
-      'Auto-generate dietitian referral for all TB-suspected patients with BMI <22 and weight loss >5% body weight.',
-    confidence: 67,
-    forecastDays: 14,
-    status: 'Dismissed',
-  },
-  {
-    id: 'PREV-006',
-    title: 'Medication reconciliation gap on admission',
-    impact: 'Low',
-    predictedOutcome:
-      'No prior medication list documented in the encounter record. If anti-TB therapy is initiated without reconciliation, drug interactions cannot be screened.',
-    probability: 44,
-    suggestedAction:
-      'Prompt ward pharmacist to complete medication reconciliation before any new prescription is generated for this patient.',
-    confidence: 58,
-    forecastDays: 2,
-    status: 'Dismissed',
   },
 ];

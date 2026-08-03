@@ -41,10 +41,10 @@ function OrgTab() {
       />
       <KeyValueRow label="Contract Start"  value="01 Jan 2026" />
       <KeyValueRow
-        label="HIPAA BAA"
+        label="Data Agreement"
         value={
-          <span className="flex items-center gap-1.5 text-xs font-semibold" style={{ color: '#36C28B' }}>
-            <CheckCircle size={12} /> Signed
+          <span className="flex items-center gap-1.5 text-xs font-semibold" style={{ color: '#93A1B5' }}>
+            Research pilot
           </span>
         }
       />
@@ -484,7 +484,7 @@ function ComplianceTab() {
       <Card title="Compliance Status">
         <div className="flex flex-col gap-3">
           {[
-            { label: 'HIPAA Compliant',      icon: <CheckCircle size={14} />, color: '#36C28B', note: 'Verified' },
+            { label: 'Research Pilot',      icon: <CheckCircle size={14} />, color: '#36C28B', note: 'Not clinical clearance' },
             { label: 'SOC 2 Type II',         icon: <AlertCircle size={14} />, color: '#F4A638', note: 'In Progress' },
             { label: 'Audit Logging',         icon: <CheckCircle size={14} />, color: '#36C28B', note: 'On' },
             { label: 'Data Encryption',       icon: <CheckCircle size={14} />, color: '#36C28B', note: 'AES-256' },

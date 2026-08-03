@@ -12,24 +12,34 @@ interface NavGroup { group: string; items: NavItem[] }
 
 const NAV_GROUPS: NavGroup[] = [
   {
-    group: 'Clinical Operations',
+    group: 'Worklist',
     items: [
       { label: 'Dashboard', icon: LayoutDashboard, to: '/' },
+      { label: 'Patients', icon: Users, to: '/patients' },
+      { label: 'CT Imaging', icon: ScanLine, to: '/imaging' },
       { label: 'Labs & Biomarkers', icon: FlaskConical, to: '/labs' },
       { label: 'Risk Engine', icon: Brain, to: '/risk-engine' },
-      { label: 'Autonomous Intervention', icon: Zap, to: '/intervention' },
-      { label: 'Autonomous Prevention', icon: Shield, to: '/prevention' },
-      { label: 'Care Coordination', icon: HeartHandshake, to: '/care' },
-      { label: 'Reports', icon: FileText, to: '/reports' },
-      { label: 'Audit & Logs', icon: ClipboardList, to: '/audit' },
     ],
   },
   {
-    group: 'Medical Intelligence',
+    group: 'Agentic AI · Coming Soon',
     items: [
-      { label: 'Patients', icon: Users, to: '/patients' },
-      { label: 'CT Imaging', icon: ScanLine, to: '/imaging' },
+      { label: 'Autonomous Intervention', icon: Zap, to: '/intervention' },
+      { label: 'Autonomous Prevention', icon: Shield, to: '/prevention' },
+      { label: 'Care Coordination', icon: HeartHandshake, to: '/care' },
+    ],
+  },
+  {
+    group: 'Intelligence',
+    items: [
       { label: 'Research Mode', icon: Microscope, to: '/research' },
+    ],
+  },
+  {
+    group: 'Governance',
+    items: [
+      { label: 'Reports', icon: FileText, to: '/reports' },
+      { label: 'Audit & Logs', icon: ClipboardList, to: '/audit' },
       { label: 'Administration', icon: Settings, to: '/administration' },
     ],
   },
@@ -48,7 +58,6 @@ const Sidebar: React.FC = () => {
         borderRight: `1px solid ${colors.border}`,
       }}
     >
-      {/* Logo */}
       <div
         className="h-16 flex items-center justify-between px-4 shrink-0"
         style={{ borderBottom: `1px solid ${colors.border}` }}
@@ -70,7 +79,6 @@ const Sidebar: React.FC = () => {
         )}
       </div>
 
-      {/* Nav */}
       <nav className="flex-1 overflow-y-auto py-3 px-2 space-y-0.5">
         {NAV_GROUPS.map((group) => (
           <div key={group.group} className="mb-1">
@@ -127,7 +135,6 @@ const Sidebar: React.FC = () => {
         ))}
       </nav>
 
-      {/* Footer */}
       <div className="px-3 py-3 shrink-0" style={{ borderTop: `1px solid ${colors.border}` }}>
         {!collapsed ? (
           <div className="space-y-1.5">
@@ -136,13 +143,12 @@ const Sidebar: React.FC = () => {
               <span className="text-xs" style={{ color: colors.textSecondary }}>System Status</span>
               <span className="ml-auto text-xs font-medium text-[#36C28B]">Operational</span>
             </div>
-            <div className="flex items-center gap-2">
-              <span className="text-[11px]" style={{ color: colors.textMuted }}>Uptime</span>
-              <span className="text-[11px] tabular-nums ml-auto" style={{ color: colors.textSecondary }}>99.9%</span>
-            </div>
             <span className="inline-block px-1.5 py-0.5 rounded text-[10px] font-semibold uppercase tracking-wide bg-[#3B82F6]/15 text-[#3B82F6]">
-              Pilot
+              Pilot · Research
             </span>
+            <p className="text-[10px] leading-snug" style={{ color: colors.textMuted }}>
+              Agentic workflows coming soon
+            </p>
           </div>
         ) : (
           <div className="flex justify-center">
@@ -151,7 +157,6 @@ const Sidebar: React.FC = () => {
         )}
       </div>
 
-      {/* Collapse toggle */}
       <button
         onClick={() => setCollapsed(c => !c)}
         className="absolute -right-3 top-20 w-6 h-6 rounded-full flex items-center justify-center z-10 transition-colors"

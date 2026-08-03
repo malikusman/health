@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Shield, Search, Bell, ChevronDown, Users, Upload, Sun, Moon } from 'lucide-react';
+import { Shield, Search, Bell, ChevronDown, Users, Sun, Moon } from 'lucide-react';
 import { useTheme } from '../lib/ThemeContext';
 
 const Topbar: React.FC = () => {
@@ -113,28 +113,6 @@ const Topbar: React.FC = () => {
         >
           <Users className="w-3.5 h-3.5" />
           <span className="hidden sm:inline">Browse patients</span>
-        </button>
-
-        <button
-          onClick={handleComingSoon}
-          className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm transition-colors"
-          style={{ border: `1px solid ${colors.border}`, color: colors.textSecondary }}
-          onMouseEnter={e => { (e.currentTarget as HTMLElement).style.backgroundColor = colors.border; (e.currentTarget as HTMLElement).style.color = colors.textPrimary; }}
-          onMouseLeave={e => { (e.currentTarget as HTMLElement).style.backgroundColor = 'transparent'; (e.currentTarget as HTMLElement).style.color = colors.textSecondary; }}
-        >
-          <Upload className="w-3.5 h-3.5" />
-          <span>Upload Imaging</span>
-        </button>
-
-        <button
-          onClick={handleComingSoon}
-          className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm transition-colors"
-          style={{ border: `1px solid ${colors.border}`, color: colors.textSecondary }}
-          onMouseEnter={e => { (e.currentTarget as HTMLElement).style.backgroundColor = colors.border; (e.currentTarget as HTMLElement).style.color = colors.textPrimary; }}
-          onMouseLeave={e => { (e.currentTarget as HTMLElement).style.backgroundColor = 'transparent'; (e.currentTarget as HTMLElement).style.color = colors.textSecondary; }}
-        >
-          <Upload className="w-3.5 h-3.5" />
-          <span>Upload Labs</span>
         </button>
       </div>
     </header>

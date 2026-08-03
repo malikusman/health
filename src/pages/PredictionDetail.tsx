@@ -153,6 +153,22 @@ export default function PredictionDetail() {
                 </dd>
               </div>
             </dl>
+            <div className="mt-4 flex gap-3 flex-wrap">
+              <Link
+                to={`/patients/${encodeURIComponent(pred.data.patient_id)}`}
+                className="text-xs font-semibold px-3 py-1.5 rounded-lg"
+                style={{ backgroundColor: '#1E2A3D', color: '#3B82F6' }}
+              >
+                Open patient case
+              </Link>
+              <Link
+                to={`/imaging?patientId=${encodeURIComponent(pred.data.patient_id)}`}
+                className="text-xs font-semibold px-3 py-1.5 rounded-lg"
+                style={{ backgroundColor: '#3B82F6', color: '#fff' }}
+              >
+                Open CT Imaging
+              </Link>
+            </div>
           </Card>
         </>
       )}

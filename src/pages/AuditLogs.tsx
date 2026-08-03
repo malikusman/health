@@ -212,7 +212,7 @@ const AuditLogs: React.FC = () => {
             </button>
             <div className="flex items-center gap-1.5" style={{ color: '#5E6E85' }}>
               <Shield size={12} />
-              <span>HIPAA-compliant · Tamper-evident · SOC 2 Type II</span>
+              <span>Pilot · Tamper-evident audit trail · Research use</span>
             </div>
           </div>
         </div>

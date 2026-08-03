@@ -24,10 +24,9 @@ const DatasetDetail = React.lazy(() => import('./pages/DatasetDetail'));
 const AuditLogs = React.lazy(() => import('./pages/AuditLogs'));
 const Administration = React.lazy(() => import('./pages/Administration'));
 
-/** Clinical mock routes that show John Smith PatientHeader + PipelineTracker.
- *  API-backed routes intentionally excluded. */
+/** Clinical mock routes that show PatientHeader + PipelineTracker.
+ *  Dashboard is research-first (API) — excluded. API routes excluded. */
 const PATIENT_CONTEXT_ROUTES = [
-  '/',
   '/labs',
   '/risk-engine',
   '/intervention',
@@ -103,7 +102,9 @@ const App: React.FC = () => {
             <span className="text-[#1E2A3D] text-xs select-none">|</span>
             <ApiHealthStatus />
             <span className="text-[#1E2A3D] text-xs select-none">|</span>
-            <span className="text-[#5E6E85] text-xs">HIPAA Ready</span>
+            <span className="text-[#5E6E85] text-xs">
+              Research data · Not for clinical diagnosis
+            </span>
           </footer>
         </main>
       </div>

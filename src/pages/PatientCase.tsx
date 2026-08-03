@@ -4,10 +4,12 @@ import { ArrowLeft, ScanLine, AlertCircle, User } from 'lucide-react';
 import PageContainer from '../layout/PageContainer';
 import { Card, Badge, StatCard } from '../components';
 import { getPatient, getPatientPredictions } from '../api/endpoints';
-import { formatProbability } from '../api/client';
+import { formatProbability, resolveMediaUrl } from '../api/client';
 import { useApiPatient } from '../api/ApiPatientContext';
 import { useAsync } from '../hooks/useAsync';
 import { formatClassLabel, formatPartitionLabel } from '../lib/format';
+import { getStudyImages } from '../api/endpoints';
+import { midVolumePage } from '../api/demoSpine';
 
 function gtColor(gt: string): string {
   if (gt === 'tb') return '#F0476A';
@@ -44,6 +46,18 @@ export default function PatientCase() {
 
   const pred = patient.data?.predictions[0];
   const primaryStudy = patient.data?.studies[0];
+
+  const thumbPageSize = 5;
+  const thumbPage = primaryStudy
+    ? midVolumePage(primaryStudy.image_count, thumbPageSize)
+    : 1;
+  const preview = useAsync(
+    () =>
+      primaryStudy
+        ? getStudyImages(primaryStudy.study_id, thumbPage, thumbPageSize)
+        : Promise.reject(new Error('No study')),
+    [primaryStudy?.study_id, thumbPage],
+  );
 
   return (
     <PageContainer>
@@ -275,6 +289,41 @@ export default function PatientCase() {
                 </table>
               </div>
             )}
+          </Card>
+
+          <Card title="CT preview" className="mb-6">
+            {preview.loading && (
+              <p className="text-sm" style={{ color: '#5E6E85' }}>
+                Loading mid-volume slices…
+              </p>
+            )}
+            {!preview.loading && (preview.data?.items?.length ?? 0) > 0 && (
+              <div className="flex gap-2 overflow-x-auto pb-1 mb-3">
+                {preview.data!.items.map((img) => (
+                  <button
+                    key={img.image_id}
+                    type="button"
+                    className="shrink-0 rounded-lg overflow-hidden border"
+                    style={{ borderColor: '#1E2A3D', width: 80, height: 80 }}
+                    onClick={() =>
+                      navigate(
+                        `/imaging?patientId=${encodeURIComponent(patient.data!.patient_id)}&studyId=${encodeURIComponent(primaryStudy!.study_id)}&page=${thumbPage}`,
+                      )
+                    }
+                  >
+                    <img
+                      src={resolveMediaUrl(img.thumbnail_url)}
+                      alt=""
+                      className="w-full h-full object-cover"
+                    />
+                  </button>
+                ))}
+              </div>
+            )}
+            <p className="text-[12px]" style={{ color: '#5E6E85' }}>
+              Mid-volume CT thumbnails from the research study
+              {primaryStudy ? ` (${primaryStudy.study_id})` : ''}.
+            </p>
           </Card>
 
           <Card title="Studies">

@@ -14,6 +14,7 @@ import { formatProbability, resolveMediaUrl } from '../api/client';
 import { useApiPatient } from '../api/ApiPatientContext';
 import { useAsync } from '../hooks/useAsync';
 import { formatClassLabel } from '../lib/format';
+import { featuredImagingPath, midVolumePage } from '../api/demoSpine';
 
 export default function Imaging() {
   const navigate = useNavigate();
@@ -22,8 +23,9 @@ export default function Imaging() {
 
   const patientId = searchParams.get('patientId') || ctxPatientId || '';
   const studyIdParam = searchParams.get('studyId') || '';
+  const pageFromUrl = Number(searchParams.get('page') || '');
 
-  const [imagePage, setImagePage] = useState(1);
+  const [imagePage, setImagePage] = useState(pageFromUrl > 0 ? pageFromUrl : 0);
   const [selectedIndex, setSelectedIndex] = useState(0);
   const pageSize = 24;
 
@@ -43,14 +45,41 @@ export default function Imaging() {
     [studyId],
   );
 
+  // Open mid-volume by default (or URL page) so demos land near lung parenchyma
+  useEffect(() => {
+    if (imagePage > 0) return;
+    if (pageFromUrl > 0) {
+      setImagePage(pageFromUrl);
+      return;
+    }
+    const count = study.data?.image_count;
+    if (count && count > 0) {
+      setImagePage(midVolumePage(count, pageSize));
+    } else if (studyId && study.data) {
+      setImagePage(1);
+    }
+  }, [study.data, studyId, imagePage, pageFromUrl]);
+
   const images = useAsync(
-    () => (studyId ? getStudyImages(studyId, imagePage, pageSize) : Promise.reject(new Error('No study'))),
+    () =>
+      studyId && imagePage > 0
+        ? getStudyImages(studyId, imagePage, pageSize)
+        : Promise.reject(new Error('No study')),
     [studyId, imagePage],
   );
 
   useEffect(() => {
     setSelectedIndex(0);
   }, [imagePage, studyId]);
+
+  // Reset page when study changes (unless URL pinned a page)
+  useEffect(() => {
+    if (pageFromUrl > 0) {
+      setImagePage(pageFromUrl);
+    } else {
+      setImagePage(0);
+    }
+  }, [studyId, pageFromUrl]);
 
   const items = images.data?.items ?? [];
   const selected = items[selectedIndex] ?? null;
@@ -78,14 +107,21 @@ export default function Imaging() {
         <Card>
           <EmptyState
             icon={<Users size={24} />}
-            title="Select a patient from Patients"
-            subtitle="Open a patient case, then choose Open Imaging to load CT slices."
+            title="Select a patient or open the featured research case"
+            subtitle="Open a patient case, then choose Open Imaging — or jump straight to the demo CT case."
           />
-          <div className="flex justify-center pb-4">
+          <div className="flex justify-center gap-3 pb-4 flex-wrap">
+            <Link
+              to={featuredImagingPath()}
+              className="px-4 py-2 rounded-lg text-sm font-semibold"
+              style={{ backgroundColor: '#3B82F6', color: '#fff' }}
+            >
+              Open featured case TB-210
+            </Link>
             <Link
               to="/patients"
               className="px-4 py-2 rounded-lg text-sm font-semibold"
-              style={{ backgroundColor: '#3B82F6', color: '#fff' }}
+              style={{ backgroundColor: '#1E2A3D', color: '#E8EEF7' }}
             >
               Browse patients
             </Link>

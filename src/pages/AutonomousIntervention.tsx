@@ -22,8 +22,10 @@ import {
   SectionTitle,
   EmptyState,
 } from '../components';
-import { interventions } from '../data/interventions';
+import { interventions, buildAlignedInterventions } from '../data/interventions';
 import type { Intervention, AuditEntry } from '../lib/types';
+import { loadDemoSpine } from '../api/demoSpine';
+import { useAsync } from '../hooks/useAsync';
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -210,6 +212,10 @@ function RationalePanel({
 
 const AutonomousIntervention: React.FC = () => {
   const [selectedIntervention, setSelectedIntervention] = useState<Intervention | null>(null);
+  const spine = useAsync(() => loadDemoSpine(0), []);
+  const liveInterventions = spine.data
+    ? buildAlignedInterventions(spine.data)
+    : interventions;
 
   // Autonomy toggle state
   const [toggles, setToggles] = useState({
@@ -225,7 +231,7 @@ const AutonomousIntervention: React.FC = () => {
   }
 
   // Flatten audit trails for the combined timeline
-  const allAuditEntries: (AuditEntry & { interventionTitle: string })[] = interventions
+  const allAuditEntries: (AuditEntry & { interventionTitle: string })[] = liveInterventions
     .flatMap((i) =>
       i.auditTrail.map((a) => ({ ...a, interventionTitle: i.title }))
     )
@@ -376,7 +382,7 @@ const AutonomousIntervention: React.FC = () => {
     },
   ];
 
-  const tableRows = interventions as unknown as Record<string, unknown>[];
+  const tableRows = liveInterventions as unknown as Record<string, unknown>[];
 
   return (
     <PageContainer>
@@ -385,33 +391,42 @@ const AutonomousIntervention: React.FC = () => {
         {/* ── Section Title ─────────────────────────────────────────────── */}
         <SectionTitle
           title="Autonomous Intervention"
-          subtitle="Human-in-the-loop response engine — detect, reason, recommend, approve, execute, verify."
+          subtitle="Agentic AI prototype — triggers from live research API; actions are simulated / coming soon."
           icon={<Zap size={22} />}
         />
+
+        <div
+          className="rounded-xl px-4 py-3 text-sm"
+          style={{ backgroundColor: '#F4A63815', border: '1px solid #F4A63855', color: '#F4A638' }}
+        >
+          Coming soon: agentic execution against clinical systems. Triggers below are derived from Medical
+          Intelligence research outputs
+          {spine.data ? ` (featured case ${spine.data.patient.display_id})` : ''}. Not for clinical use.
+        </div>
 
         {/* ── KPI Strip ─────────────────────────────────────────────────── */}
         <div className="grid grid-cols-4 gap-4">
           <StatCard
-            label="Active Interventions"
-            value={4}
+            label="Prototype Interventions"
+            value={liveInterventions.length}
             color="#F0476A"
             icon={<AlertCircle size={18} />}
           />
           <StatCard
-            label="Completed Today"
-            value={12}
+            label="Human-in-loop"
+            value={liveInterventions.filter((i) => i.humanInLoop).length}
             color="#36C28B"
             icon={<CheckCircle size={18} />}
           />
           <StatCard
             label="Awaiting Approval"
-            value={2}
+            value={liveInterventions.filter((i) => i.status === 'Queued' || i.status === 'Pending').length}
             color="#F4A638"
             icon={<Clock size={18} />}
           />
           <StatCard
-            label="Avg Time-to-Action"
-            value="3.2 min"
+            label="Status"
+            value="Coming Soon"
             color="#3B82F6"
             icon={<Zap size={18} />}
           />
@@ -424,7 +439,7 @@ const AutonomousIntervention: React.FC = () => {
           <div className="col-span-3 flex flex-col gap-4">
             <Card
               title="Interventions"
-              badge={interventions.length}
+              badge={liveInterventions.length}
               badgeColor="#3B82F6"
             >
               <DataTable
