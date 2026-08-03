@@ -8,8 +8,8 @@ Branch: `feature/medical-demo-readiness`
 
 ## ~20 minute walkthrough
 
-1. **Dashboard** (`/`) — Research cohort counts, featured CT thumbs for TB-210, model metrics, priority predictions, Autonomous agents (Coming Soon) strip.
-2. **Open CT Imaging** — Mid-volume slices; scrub pages; note heatmap not available yet.
+1. **Dashboard** (`/`) — Research cohort counts, featured CT thumbs for TB-210, model metrics, priority predictions (CT button), Autonomous agents (Coming Soon) strip.
+2. **Open CT Imaging** — Mid-volume open; **slice scrubber**, arrow keys / scroll, **window presets** (Lung / Mediastinum / Bone), page jump; URL keeps `page` + `slice` for shareable demos. Heatmaps unavailable.
 3. **Patient Case** — Research TB probability, prediction history, CT preview thumbnails.
 4. **Research Mode** — ROC-AUC / sensitivity / specificity / confusion matrix; test predictions.
 5. **Autonomous Intervention** — Triggers cite live research signals; actions simulated / coming soon.

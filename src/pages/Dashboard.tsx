@@ -21,7 +21,7 @@ import {
   featuredImagingPath,
   loadDemoSpine,
 } from '../api/demoSpine';
-import { formatClassLabel, formatPartitionLabel } from '../lib/format';
+import { formatClassLabel } from '../lib/format';
 import { buildAlignedInterventions } from '../data/interventions';
 import { buildAlignedPrevention } from '../data/prevention';
 
@@ -260,25 +260,36 @@ const Dashboard: React.FC = () => {
             </p>
           )}
           {(preds.data?.items ?? []).map((p) => (
-            <button
+            <div
               key={p.prediction_id}
-              type="button"
-              className="w-full flex items-center gap-3 py-2 border-b border-[#1E2A3D] last:border-0 text-left hover:bg-[#1E2A3D]/40"
-              onClick={() => navigate(`/patients/${encodeURIComponent(p.patient_id)}`)}
+              className="flex items-center gap-2 py-2 border-b border-[#1E2A3D] last:border-0"
             >
-              <span className="font-mono text-xs flex-1 truncate" style={{ color: '#3B82F6' }}>
-                {p.patient_id}
-              </span>
-              <Badge color={p.predicted_class === 'tb' ? '#F4A638' : '#6B8AFE'}>
-                {formatClassLabel(p.predicted_class)}
-              </Badge>
-              <span className="text-xs tabular-nums w-14 text-right" style={{ color: '#E8EEF7' }}>
-                {formatProbability(p.tb_probability)}
-              </span>
-              <span className="text-[11px] w-16 text-right" style={{ color: '#93A1B5' }}>
-                {formatPartitionLabel(p.partition)}
-              </span>
-            </button>
+              <button
+                type="button"
+                className="flex-1 flex items-center gap-3 text-left min-w-0 hover:opacity-90"
+                onClick={() => navigate(`/patients/${encodeURIComponent(p.patient_id)}`)}
+              >
+                <span className="font-mono text-xs flex-1 truncate" style={{ color: '#3B82F6' }}>
+                  {p.patient_id}
+                </span>
+                <Badge color={p.predicted_class === 'tb' ? '#F4A638' : '#6B8AFE'}>
+                  {formatClassLabel(p.predicted_class)}
+                </Badge>
+                <span className="text-xs tabular-nums w-14 text-right" style={{ color: '#E8EEF7' }}>
+                  {formatProbability(p.tb_probability)}
+                </span>
+              </button>
+              <button
+                type="button"
+                className="shrink-0 text-[11px] font-semibold px-2 py-1 rounded-lg"
+                style={{ backgroundColor: '#1E2A3D', color: '#3B82F6' }}
+                onClick={() =>
+                  navigate(`/imaging?patientId=${encodeURIComponent(p.patient_id)}`)
+                }
+              >
+                CT
+              </button>
+            </div>
           ))}
         </Card>
 
