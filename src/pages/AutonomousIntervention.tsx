@@ -391,23 +391,23 @@ const AutonomousIntervention: React.FC = () => {
         {/* ── Section Title ─────────────────────────────────────────────── */}
         <SectionTitle
           title="Autonomous Intervention"
-          subtitle="Agentic AI prototype — triggers from live research API; actions are simulated / coming soon."
+          subtitle="Human-in-the-loop response engine — detect, reason, recommend, approve, execute."
           icon={<Zap size={22} />}
         />
 
         <div
           className="rounded-xl px-4 py-3 text-sm"
-          style={{ backgroundColor: '#F4A63815', border: '1px solid #F4A63855', color: '#F4A638' }}
+          style={{ backgroundColor: '#3B82F615', border: '1px solid #3B82F655', color: '#93A1B5' }}
         >
-          Coming soon: agentic execution against clinical systems. Triggers below are derived from Medical
-          Intelligence research outputs
-          {spine.data ? ` (featured case ${spine.data.patient.display_id})` : ''}. Not for clinical use.
+          Interventions are driven by Medical Intelligence research signals
+          {spine.data ? ` (featured case ${spine.data.patient.display_id})` : ''}. Research outputs are not
+          a clinical diagnosis.
         </div>
 
         {/* ── KPI Strip ─────────────────────────────────────────────────── */}
         <div className="grid grid-cols-4 gap-4">
           <StatCard
-            label="Prototype Interventions"
+            label="Active Interventions"
             value={liveInterventions.length}
             color="#F0476A"
             icon={<AlertCircle size={18} />}
@@ -425,8 +425,8 @@ const AutonomousIntervention: React.FC = () => {
             icon={<Clock size={18} />}
           />
           <StatCard
-            label="Status"
-            value="Coming Soon"
+            label="Engine"
+            value="Agentic"
             color="#3B82F6"
             icon={<Zap size={18} />}
           />

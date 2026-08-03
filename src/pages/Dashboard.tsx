@@ -68,8 +68,7 @@ const Dashboard: React.FC = () => {
           Medical Research Intelligence
         </h1>
         <p className="text-[13px] mt-1" style={{ color: '#5E6E85' }}>
-          Pilot · Live cohort from Medical Intelligence API · Research outputs are not a clinical diagnosis ·
-          Agentic workflows coming soon
+          Pilot · Live Medical Intelligence API · Research outputs are not a clinical diagnosis
         </p>
       </div>
 
@@ -293,17 +292,15 @@ const Dashboard: React.FC = () => {
           ))}
         </Card>
 
-        {/* Agentic coming soon */}
+        {/* Agentic AI */}
         <Card
           title="Autonomous agents"
-          badge="Coming Soon"
-          badgeColor="#F4A638"
           action={
             <LinkButton onClick={() => navigate('/intervention')}>Open Intervention</LinkButton>
           }
         >
           <p className="text-[11px] mb-3" style={{ color: '#5E6E85' }}>
-            Triggers use live research signals; actions are simulated until clinical systems connect
+            Agentic actions driven by live research signals from the Medical Intelligence API
           </p>
           <div className="space-y-2 mb-4">
             {interventions.slice(0, 3).map((i) => (

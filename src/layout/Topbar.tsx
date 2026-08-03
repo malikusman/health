@@ -6,7 +6,7 @@ import { useTheme } from '../lib/ThemeContext';
 const Topbar: React.FC = () => {
   const navigate = useNavigate();
   const { isDark, toggleTheme, colors } = useTheme();
-  const handleComingSoon = () => window.alert('Feature coming soon');
+  const handleComingSoon = () => window.alert('This control is not available in the current session.');
 
   return (
     <header

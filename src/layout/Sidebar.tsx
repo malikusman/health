@@ -22,7 +22,7 @@ const NAV_GROUPS: NavGroup[] = [
     ],
   },
   {
-    group: 'Agentic AI · Coming Soon',
+    group: 'Agentic AI',
     items: [
       { label: 'Autonomous Intervention', icon: Zap, to: '/intervention' },
       { label: 'Autonomous Prevention', icon: Shield, to: '/prevention' },
@@ -146,9 +146,6 @@ const Sidebar: React.FC = () => {
             <span className="inline-block px-1.5 py-0.5 rounded text-[10px] font-semibold uppercase tracking-wide bg-[#3B82F6]/15 text-[#3B82F6]">
               Pilot · Research
             </span>
-            <p className="text-[10px] leading-snug" style={{ color: colors.textMuted }}>
-              Agentic workflows coming soon
-            </p>
           </div>
         ) : (
           <div className="flex justify-center">

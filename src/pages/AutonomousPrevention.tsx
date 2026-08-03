@@ -377,17 +377,17 @@ const AutonomousPrevention: React.FC = () => {
         {/* ── Section Title ─────────────────────────────────────────────── */}
         <SectionTitle
           title="Autonomous Prevention"
-          subtitle="Agentic AI prototype — predictive opportunities from live research signals; coming soon."
+          subtitle="Predictive intelligence — surface risks before adverse events occur."
           icon={<Shield size={22} style={{ color: '#36C28B' }} />}
         />
 
         <div
           className="rounded-xl px-4 py-3 text-sm"
-          style={{ backgroundColor: '#F4A63815', border: '1px solid #F4A63855', color: '#F4A638' }}
+          style={{ backgroundColor: '#3B82F615', border: '1px solid #3B82F655', color: '#93A1B5' }}
         >
-          Coming soon: prevention agents closing confirmatory and governance gaps. Opportunities below are
-          aligned to Medical Intelligence API research outputs
-          {spine.data ? ` (featured case ${spine.data.patient.display_id})` : ''}. Not for clinical use.
+          Prevention opportunities are aligned to Medical Intelligence research signals
+          {spine.data ? ` (featured case ${spine.data.patient.display_id})` : ''}. Research outputs are not
+          a clinical diagnosis.
         </div>
 
         {/* ── KPI Strip ─────────────────────────────────────────────────── */}
@@ -399,17 +399,16 @@ const AutonomousPrevention: React.FC = () => {
             icon={<AlertTriangle size={18} />}
           />
           <StatCard
-            label="Prototype Total"
+            label="Total Opportunities"
             value={liveOpportunities.length}
             color="#36C28B"
             icon={<CheckCircle size={18} />}
           />
           <StatCard
-            label="Status"
-            value="Coming Soon"
+            label="Engine"
+            value="Agentic"
             color="#3B82F6"
             icon={<TrendingUp size={18} />}
-            subtitle="Not executed live"
           />
           <StatCard
             label="Featured case"

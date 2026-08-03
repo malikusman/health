@@ -14,7 +14,7 @@ export const modelCard = {
   calibrationError: 0.024,
   lastUpdated: '15 February 2026',
   nextReview: '15 August 2026',
-  regulatoryStatus: 'Pilot research decision-support prototype — not a cleared medical device',
+  regulatoryStatus: 'Pilot research decision support — not a cleared medical device',
   validatedPopulation: 'Adults ≥18 years presenting to secondary care with respiratory symptoms',
   knownLimitations: [
     'Performance may be reduced in immunocompromised patients (HIV, transplant)',

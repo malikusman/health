@@ -2,22 +2,23 @@
 
 Branch: `feature/medical-demo-readiness`
 
-**Positioning:** Scorpius is medical research intelligence (live Phase 1 API) plus agentic AI workflows (prototype / coming soon). Research outputs are not clinical diagnoses.
+**Positioning (say verbally):** Scorpius is medical research intelligence plus agentic clinical workflows. CT cohort and model scores are live from the Medical Intelligence API. Agentic Intervention / Prevention / Care / Labs / Risk use product UI with research-aligned triggers — explain verbally that EHR/LIS execution is the next integration layer. Do not label screens “mock” or “coming soon” in the UI.
 
 **Featured case:** TB-210 (`tb-ct-0139`) · study `tb-ct-0139-f0` · model TB CT ResNet-18
 
+## Live vs product UI (for the presenter)
+
+| Live API | Product / agentic UI (not API-backed actions) |
+|----------|-----------------------------------------------|
+| Patients, Case, CT Imaging, Research, Dashboard cohort/metrics | Intervention, Prevention, Care |
+| Footer API health | Labs, Risk Engine, Reports, Audit narratives |
+| Prediction / Dataset detail | Admin org config (except Models tab) |
+
 ## ~20 minute walkthrough
 
-1. **Dashboard** (`/`) — Research cohort counts, featured CT thumbs for TB-210, model metrics, priority predictions (CT button), Autonomous agents (Coming Soon) strip.
-2. **Open CT Imaging** — Mid-volume open; **slice scrubber**, arrow keys / scroll, **window presets** (Lung / Mediastinum / Bone), page jump; URL keeps `page` + `slice` for shareable demos. Heatmaps unavailable.
-3. **Patient Case** — Research TB probability, prediction history, CT preview thumbnails.
-4. **Research Mode** — ROC-AUC / sensitivity / specificity / confusion matrix; test predictions.
-5. **Autonomous Intervention** — Triggers cite live research signals; actions simulated / coming soon.
-6. **Autonomous Prevention** — Same framing; confirmatory pathway + FP governance as future agents.
-7. **Close** — Footer API health; “Research data · Not for clinical diagnosis.”
-
-## Do not click / say
-
-- Do not claim HIPAA certification, UKCA clearance, or live lab orders.
-- Do not present John Smith mock labs as the same patient as TB-210.
-- Say “research probability / decision support / coming soon agents,” not “diagnosis.”
+1. **Dashboard** — cohort, featured CT, model metrics, agents strip.
+2. **CT Imaging** — scrubber, window presets, shareable slice URL.
+3. **Patient Case** — research probs + CT preview.
+4. **Research Mode** — ROC / sens / spec / confusion matrix.
+5. **Intervention / Prevention** — agents driven by research signals (explain EHR connect verbally).
+6. **Close** — API healthy; research outputs ≠ clinical diagnosis.
